@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>简历模板库 · 打开即改，自动保存在本机</title>
+<meta name="description" content="免费在线简历模板库：打开模板直接编辑，自动保存在本机浏览器，可导出 PDF，支持证件照替换。无需注册，数据不上传。">
+<style>
+:root{
+  --teal:#4E7282; --teal-dark:#264A5A; --ink:#2b3a42; --muted:#7a8a93;
+  --bg:#eef2f4; --card:#fff; --line:#dde5e9;
+  --font:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font)}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+
+/* ---------- 头部 ---------- */
+header{background:linear-gradient(135deg,var(--teal-dark),var(--teal));color:#fff;padding:38px 0 30px}
+header h1{margin:0 0 8px;font-size:26px;font-weight:600;letter-spacing:1px}
+header p{margin:0;opacity:.85;font-size:14px;line-height:1.7}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.badges span{border:1px solid rgba(255,255,255,.45);border-radius:20px;padding:3px 12px;font-size:12px;opacity:.95}
+
+/* ---------- 说明条 ---------- */
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:22px 0}
+.tip{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.8}
+.tip b{color:var(--teal-dark)}
+.tip ol{margin:6px 0 0;padding-left:20px}
+
+/* ---------- 筛选 ---------- */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:6px 0 18px}
+.controls input[type=search]{flex:1;min-width:200px;max-width:340px;padding:9px 14px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:14px;outline:none}
+.controls input[type=search]:focus{border-color:var(--teal)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:5px 14px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--ink)}
+.chip.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.count{font-size:13px;color:var(--muted)}
+
+/* ---------- 模板网格 ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;padding-bottom:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;transition:box-shadow .2s,transform .2s;display:flex;flex-direction:column}
+.card:hover{box-shadow:0 8px 24px rgba(38,74,90,.18);transform:translateY(-2px)}
+.thumb{position:relative;width:100%;aspect-ratio:794/1123;background:#f6f8f9;overflow:hidden;border-bottom:1px solid var(--line)}
+.thumb iframe{width:794px;height:1123px;border:0;transform-origin:top left;pointer-events:none}
+.thumb .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
+.tag{position:absolute;left:8px;top:8px;background:rgba(38,74,90,.88);color:#fff;font-size:11px;border-radius:6px;padding:2px 8px}
+.tag.photo{background:rgba(192,57,43,.9)}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;font-size:13px}
+.meta .name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta .cat{color:var(--muted);font-size:12px;white-space:nowrap}
+.use{display:block;text-align:center;background:var(--teal);color:#fff;font-size:13px;padding:8px 0;transition:.15s}
+.use:hover{background:var(--teal-dark)}
+.empty{display:none;text-align:center;color:var(--muted);padding:60px 0;font-size:14px}
+
+footer{margin-top:34px;border-top:1px solid var(--line);padding:20px 0 34px;font-size:12.5px;color:var(--muted);line-height:1.9}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>简历模板库</h1>
+    <p>打开模板 → 点文字直接改 → 自动保存在你的浏览器 → 一键导出 PDF。无需注册，数据完全在你本机。</p>
+    <div class="badges">
+      <span>免费使用</span><span>免注册</span><span>数据不上传</span><span>支持证件照替换</span><span>支持 JSON 备份迁移</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tips">
+    <div class="tip"><b>怎么用</b>
+      <ol>
+        <li>挑一个模板点进去；</li>
+        <li>点纸张里的文字直接改，改动自动保存在本机浏览器；</li>
+        <li>工具条「打印 / 导出PDF」生成简历（打印机选"另存为 PDF"、边距选"无"）。</li>
+      </ol>
+    </div>
+    <div class="tip"><b>照片与换设备</b>
+      <ol>
+        <li>工具条「替换照片」上传证件照（带"可换照片"标的模板支持）；</li>
+        <li>换电脑/换浏览器：用「备份JSON」导出，在新设备「导入JSON」。</li>
+      </ol>
+    </div>
+    <div class="tip"><b>隐私说明</b><br>
+      本站是纯静态网页，<b>没有任何服务器</b>。你的简历内容只保存在你自己浏览器的 localStorage 里，清除浏览器数据会删除简历，请先备份。
+    </div>
+  </div>
+
+  <div class="controls">
+    <input type="search" id="q" placeholder="搜索模板名，如：双栏、极简…">
+    <div class="chips" id="chips"></div>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">没有匹配的模板，换个关键词试试。</div>
+</main>
+
+<div class="wrap">
+<footer>
+  建议使用 Edge / Chrome 浏览器获得最佳体验。本站模板仅供个人求职使用。<br>
+  提示：每个模板保存各自的内容；想同时维护多份简历，可在不同模板中各存一份，或用「备份JSON」区分存档。
+</footer>
+</div>
+
+<script>
+/* 本地原版模板 + 转换生成的模板清单 */
+var EXTRA = [{ id: 'classic-teal', name: '经典青绿丝带（原版）', cat: '简约', photo: true }];
+var LIST = [];
+
+var grid = document.getElementById('grid');
+var chipsEl = document.getElementById('chips');
+var qEl = document.getElementById('q');
+var countEl = document.getElementById('count');
+var emptyEl = document.getElementById('empty');
+var curCat = '全部';
+var thumbs = [];
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+function renderChips(){
+  var cats = ['全部'];
+  LIST.forEach(function(t){ if (cats.indexOf(t.cat) < 0) cats.push(t.cat); });
+  chipsEl.innerHTML = '';
+  cats.forEach(function(c){
+    var n = c === '全部' ? LIST.length : LIST.filter(function(t){ return t.cat === c; }).length;
+    var b = document.createElement('button');
+    b.className = 'chip' + (curCat === c ? ' on' : '');
+    b.textContent = c + ' (' + n + ')';
+    b.onclick = function(){ curCat = c; renderChips(); renderGrid(); };
+    chipsEl.appendChild(b);
+  });
+}
+
+function renderGrid(){
+  var kw = qEl.value.trim();
+  var list = LIST.filter(function(t){
+    if (curCat !== '全部' && t.cat !== curCat) return false;
+    if (kw && t.name.indexOf(kw) < 0 && t.cat.indexOf(kw) < 0) return false;
+    return true;
+  });
+  countEl.textContent = '共 ' + list.length + ' 个模板';
+  emptyEl.style.display = list.length ? 'none' : 'block';
+  grid.innerHTML = '';
+  thumbs = [];
+  list.forEach(function(t){
+    var a = document.createElement('a');
+    a.className = 'card';
+    a.href = 'templates/' + t.id + '.html';
+    a.innerHTML =
+      '<div class="thumb">' +
+        '<div class="ph">加载预览…</div>' +
+        '<iframe src="templates/' + t.id + '.html" loading="lazy" scrolling="no" tabindex="-1" aria-hidden="true"></iframe>' +
+        (t.photo ? '<span class="tag photo">可换照片</span>' : '<span class="tag">' + esc(t.cat) + '</span>') +
+      '</div>' +
+      '<div class="meta"><span class="name">' + esc(t.name) + '</span><span class="cat">' + esc(t.cat) + '</span></div>' +
+      '<span class="use">使用此模板</span>';
+    grid.appendChild(a);
+    var thumb = a.querySelector('.thumb');
+    var iframe = a.querySelector('iframe');
+    thumbs.push({ thumb: thumb, iframe: iframe, loaded: false });
+    iframe.addEventListener('load', function(){ fitThumb(thumbs.filter(function(x){ return x.iframe === iframe; })[0]); });
+  });
+  requestAnimationFrame(fitAll);
+}
+
+function fitThumb(item){
+  if (!item) return;
+  var w = item.thumb.clientWidth;
+  if (!w) return;
+  var s = w / 794;
+  item.iframe.style.transform = 'scale(' + s + ')';
+  item.iframe.style.width = '794px';
+  item.iframe.style.height = Math.round(1123) + 'px';
+  item.iframe.style.display = 'block';
+  var ph = item.thumb.querySelector('.ph');
+  if (ph) ph.style.display = 'none';
+}
+function fitAll(){ thumbs.forEach(fitThumb); }
+window.addEventListener('resize', fitAll);
+
+qEl.addEventListener('input', renderGrid);
+
+/* 载入清单：优先 templates.js（file:// 直开也能用），否则轮询 templates.json
+   （批量转换期间清单可能还没生成，先展示本地模板，生成后自动补齐，无需手动刷新） */
+var booted = false;
+function boot(){
+  if (booted) return;
+  booted = true;
+  renderChips();
+  renderGrid();
+}
+if (window.QMT_LIST && window.QMT_LIST.length) {
+  LIST = EXTRA.concat(window.QMT_LIST);
+  boot();
+} else {
+  var tries = 0;
+  (function poll(){
+    fetch('assets/templates.json').then(function(r){
+      if (!r.ok) throw new Error('not ready');
+      return r.json();
+    }).then(function(arr){
+      LIST = EXTRA.concat(arr);
+      boot();
+    }).catch(function(){
+      tries++;
+      if (tries === 1) {
+        LIST = EXTRA.slice();
+        boot();
+        countEl.textContent = '其余模板正在批量转换，就绪后本页自动补齐…';
+      }
+      if (tries < 120) setTimeout(poll, 20000);
+      else countEl.textContent = '模板清单不可用（如为本地直开文件，请改用 http 访问）';
+    });
+  })();
+}
+</script>
+<script src="assets/templates.js"></script>
+</body>
+</html>

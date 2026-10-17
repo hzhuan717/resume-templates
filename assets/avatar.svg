@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="560" viewBox="0 0 480 560">
+  <rect width="480" height="560" fill="#eef1f3"/>
+  <circle cx="240" cy="218" r="92" fill="#c9d2d8"/>
+  <path d="M240 330c-118 0-196 78-196 196v34h392v-34c0-118-78-196-196-196z" fill="#c9d2d8"/>
+  <text x="240" y="530" text-anchor="middle" font-family="Microsoft YaHei, PingFang SC, sans-serif" font-size="22" fill="#8a97a0">点击工具条「替换照片」上传证件照</text>
+</svg>

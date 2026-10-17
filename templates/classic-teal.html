@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>经典青绿丝带 · 可编辑简历模板</title>
+<!--
+  经典青绿丝带模板（单页版式）。打开后点任意文字即可编辑，自动保存在本机浏览器。
+  · 证件照：顶部工具条「替换照片」上传；
+  · 导出：工具条「导出PDF」（打印对话框选"另存为 PDF"、边距选"无"）；
+  · 恢复初始：工具条「恢复示例」。
+
+  想改结构（增删版块/条目）：用记事本 / VS Code 打开本文件——
+    · 增删一个版块：复制或删除整段 <section class="sec"> … </section>；
+    · 增删一条经历：复制或删除整个 <div class="entry"> … </div>；
+    · 增删一条要点：复制或删除整行 <div class="li"> … </div>（要点行按 Enter 会自动续行）。
+  所有装饰（深色章节条、斜纹丝带、折角、竖线、横线）都由 CSS 自动绘制，
+  只写文字，版式不会错乱。
+-->
+<style>
+:root{
+  --teal:       #4E7282;   /* 主色：章节条 / 竖线 / 横线 */
+  --teal-dark:  #264A5A;   /* 折角深色 */
+  --ink:        #333333;   /* 正文标题色（日期/单位/职务） */
+  --ink-soft:   #555555;   /* 正文内容色 */
+  --bar-bg:     #FFFFFF;   /* 纸张底色 */
+  --font-cn:    "Microsoft YaHei","微软雅黑","PingFang SC","Hiragino Sans GB","Source Han Sans SC",sans-serif;
+
+  --page-w:     615pt;     /* 纸张尺寸 */
+  --page-h:     870pt;
+  --pad-l:      45.8pt;    /* 正文左边界 */
+  --pad-r:      45.8pt;    /* 正文右边界 */
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+
+body{
+  background:#e9edf0;
+  font-family:var(--font-cn);
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact;
+  display:flex;flex-direction:column;align-items:center;
+  padding:56px 16px 64px;
+}
+
+.page{
+  position:relative;
+  width:var(--page-w);
+  min-height:var(--page-h);
+  background:var(--bar-bg);
+  box-shadow:0 6px 30px rgba(0,0,0,.16);
+  padding-top:24pt;
+  overflow:hidden;
+  outline:none;
+}
+.page::before{
+  content:"";
+  position:absolute;left:30pt;top:0;bottom:40.5pt;width:.8pt;
+  background:var(--teal);
+}
+
+.content{padding-left:var(--pad-l);padding-right:var(--pad-r);}
+
+.sec{margin-top:8.62pt;}
+.sec:first-child{margin-top:0;}
+
+.sec-title{
+  position:relative;
+  display:flex;align-items:flex-start;
+  height:18pt;
+  margin:0 0 0 -27.05pt;
+}
+.sec-title .bar{
+  position:relative;z-index:1;
+  display:inline-block;
+  height:18pt;line-height:18pt;
+  padding:0 38.35pt 0 18.75pt;
+  background:var(--teal);
+  color:#fff;font-size:12pt;font-weight:400;
+  white-space:nowrap;
+}
+.sec-title .bar::before{
+  content:"";position:absolute;left:0;top:18pt;width:12pt;height:6.75pt;
+  background:var(--teal-dark);
+  clip-path:polygon(0 0,100% 100%,100% 0);
+}
+.sec-title .bar::after{
+  content:"";position:absolute;top:-16pt;right:-21pt;width:58pt;height:42pt;
+  background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%22-37%20-16%2058%2042%22%20width%3D%2258%22%20height%3D%2242%22%3E%3CclipPath%20id%3D%22c%22%3E%3Crect%20x%3D%22-105%22%20y%3D%220%22%20width%3D%22105%22%20height%3D%2218%22%2F%3E%3C%2FclipPath%3E%3Cg%20clip-path%3D%22url%28%23c%29%22%3E%3Cpolygon%20points%3D%22-20.7927%2C-0.8477%20-6.4738%2C-15.1677%2020.0427%2C11.3488%205.7238%2C25.6677%22%20fill%3D%22%234E7282%22%2F%3E%3Cpolygon%20points%3D%22-20.7927%2C-0.8477%20-6.4738%2C-15.1677%207.3148%2C-1.3797%20-7.0042%2C12.9398%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Cpolygon%20points%3D%22-20.7927%2C-0.8477%20-7.0042%2C-14.6374%2019.5124%2C11.8792%205.7238%2C25.6677%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Cpolygon%20points%3D%22-35.74%2C-1.65%20-32.03%2C-5.36%20-30.97%2C-4.30%20-34.68%2C-0.59%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Cpolygon%20points%3D%22-10.28%2C23.80%20-6.57%2C20.09%20-5.51%2C21.15%20-9.22%2C24.86%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Cpolygon%20points%3D%22-35.74%2C-1.65%20-34.68%2C-2.71%20-8.16%2C23.80%20-9.22%2C24.86%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Cpolygon%20points%3D%22-33.09%2C-4.30%20-32.03%2C-5.36%20-5.51%2C21.15%20-6.57%2C22.21%22%20fill%3D%22%23FFFFFF%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") no-repeat;
+  background-size:58pt 42pt;
+  pointer-events:none;
+}
+.sec-title::after{
+  content:"";position:absolute;left:12pt;top:18pt;width:553.5pt;height:.75pt;
+  background:var(--teal);z-index:2;
+}
+
+.sec-body{margin-top:10.05pt;}
+.sec-basic .sec-body{margin-top:10.4pt;min-height:74.75pt;}
+
+.entry-head{
+  display:grid;
+  grid-template-columns:140pt 200pt 1fr;
+  align-items:baseline;
+  color:var(--ink);font-size:10.5pt;line-height:16.5pt;
+  margin-bottom:3.05pt;
+}
+.entry-head .org{text-align:center;font-weight:700;}
+.entry-head .role{text-align:right;font-weight:700;}
+
+.entry + .entry{margin-top:11pt;}
+
+.li{
+  position:relative;
+  padding-left:14.2pt;
+  min-height:16.5pt;
+  color:var(--ink-soft);font-size:9.75pt;line-height:16.5pt;
+  text-align:justify;
+  text-justify:inter-ideograph;
+}
+.li::before{
+  content:"\00B7";
+  position:absolute;left:4.8pt;top:0;
+  font-weight:700;color:var(--ink-soft);
+}
+.li .lbl{font-weight:700;}
+.li + .li{margin-top:0;}
+
+.li-line{
+  color:var(--ink-soft);font-size:9.75pt;line-height:16.5pt;
+  text-align:justify;
+  text-justify:inter-ideograph;
+}
+.li-line b{font-weight:700;}
+
+.basic-body{}
+.info-grid{
+  display:grid;
+  grid-template-columns:221.2pt auto;
+  row-gap:2.2pt;
+  color:var(--ink);font-size:9.75pt;line-height:16.5pt;
+}
+.photo{
+  position:absolute;top:54pt;right:45.8pt;
+  width:73.5pt;height:85.5pt;
+  object-fit:cover;object-position:center top;
+  background:#eef1f3;
+}
+
+@page{size:615pt 870pt;margin:0;}
+@media print{
+  html,body{background:#fff;}
+  body{padding:0;display:block;}
+  .page{box-shadow:none;margin:0;}
+}
+</style>
+</head>
+<body>
+
+<div class="page" id="resume" contenteditable="true" spellcheck="false">
+<div class="content">
+
+  <section class="sec sec-basic">
+    <h2 class="sec-title"><span class="bar">基本信息</span></h2>
+    <div class="sec-body basic-body">
+      <div class="info-grid">
+        <div>姓　　名： 林 晓</div>
+        <div>求职岗位： 财务实习生</div>
+        <div>电　　话： 138-0000-0000</div>
+        <div>邮　　箱： example@mail.com</div>
+      </div>
+    </div>
+    <img class="photo qmt-photo" src="../assets/avatar.svg" alt="证件照">
+  </section>
+
+  <section class="sec">
+    <h2 class="sec-title"><span class="bar">教育背景</span></h2>
+    <div class="sec-body">
+      <div class="entry">
+        <div class="entry-head">
+          <span class="date">2023-09 ~ 至今</span>
+          <span class="org">某某大学</span>
+          <span class="role">会计学（本科）</span>
+        </div>
+        <div class="li-line"><b>专业成绩</b>：GPA 3.6/4.0（专业前 15%）</div>
+        <div class="li-line"><b>主修课程</b>：会计学原理、财务会计、成本会计、管理会计、审计学、财务管理、税法、经济法、金融学、会计信息系统等。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2 class="sec-title"><span class="bar">实习经验</span></h2>
+    <div class="sec-body">
+      <div class="entry">
+        <div class="entry-head">
+          <span class="date">2025-07 ~ 2025-09</span>
+          <span class="org">某某有限公司</span>
+          <span class="role">财务实习生</span>
+        </div>
+        <div class="li"><span class="lbl">凭证管理</span>：协助审核、分类与归档原始凭证，建立索引台账，做到全流程可追溯。</div>
+        <div class="li"><span class="lbl">账务处理</span>：完成日常账务录入与账证、账账核对，及时发现并纠正数据偏差，保证账表相符。</div>
+        <div class="li"><span class="lbl">效率优化</span>：梳理报销流转节点，协助优化审批路径，缩短单笔业务处理周期。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2 class="sec-title"><span class="bar">项目经验</span></h2>
+    <div class="sec-body">
+      <div class="entry">
+        <div class="entry-head">
+          <span class="date">2025-03 ~ 2025-06</span>
+          <span class="org">大学生财务决策大赛</span>
+          <span class="role">财务负责人</span>
+        </div>
+        <div class="li"><span class="lbl">报表编制</span>：负责模拟企业全流程账务处理，独立完成月度三大报表编制与勾稽核对。</div>
+        <div class="li"><span class="lbl">税务申报</span>：完成增值税申报与企业所得税预缴，熟悉电子税务局操作流程。</div>
+        <div class="li"><span class="lbl">预算建模</span>：搭建财务预测模型，开展年度预算与现金流测算，为经营决策提供支持。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2 class="sec-title"><span class="bar">技能特长</span></h2>
+    <div class="sec-body">
+      <div class="li"><span class="lbl">语言能力</span>：大学英语六级（CET-6），可进行日常对话，能阅读专业英文资料与文档。</div>
+      <div class="li"><span class="lbl">计算机能力</span>：全国计算机二级，熟练使用 Excel 进行数据建模与报表制作，掌握 Word、PPT 排版。</div>
+      <div class="li"><span class="lbl">专业能力</span>：初级会计资格，系统掌握会计与财务管理理论与实务，具备财务报表分析基础。</div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2 class="sec-title"><span class="bar">荣誉证书</span></h2>
+    <div class="sec-body">
+      <div class="li">全国大学生会计信息化技能大赛 省级二等奖</div>
+      <div class="li">大学生创新训练计划项目 省级立项</div>
+      <div class="li">校级一等奖学金 · 三好学生</div>
+      <div class="li">全国高校商业精英挑战赛会计与商业管理案例竞赛 校级一等奖</div>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<script>
+window.QMT_TPL = {id:"classic-teal", name:"经典青绿丝带（原版）", cat:"简约", photo:true};
+</script>
+<script>
+/* 本模板专属编辑行为：Enter 补齐条目样式 + 裸行自愈（保存/照片/导入导出由 editor.js 负责） */
+(function(){
+  var page = document.getElementById('resume');
+  function normalizeBlocks(){
+    var bodies = page.querySelectorAll('.sec-body, .entry');
+    Array.prototype.forEach.call(bodies, function(box){
+      Array.prototype.forEach.call(box.children, function(el){
+        if(el.tagName !== 'DIV') return;
+        var hasCls = (el.className || '').indexOf('li') >= 0;
+        var prev = el.previousElementSibling;
+        while(prev && (prev.tagName !== 'DIV' || prev.className.indexOf('entry-head') >= 0)) prev = prev.previousElementSibling;
+        if(prev && prev.className){
+          if(!hasCls){ el.className = prev.className; }
+          else if(!prev.className.indexOf('li') && el.className.indexOf('li-line') >= 0){ el.className = prev.className; }
+        }
+        if(!el.textContent.replace(/[\s\u200B\uFEFF]/g,'') && !el.querySelector('br')){
+          el.appendChild(document.createElement('br'));
+        }
+      });
+    });
+  }
+  page.addEventListener('keydown', function(e){
+    if(e.key !== 'Enter' || e.shiftKey || e.isComposing || e.keyCode === 229) return;
+    var sel = window.getSelection();
+    if(!sel.rangeCount) return;
+    var n = sel.anchorNode;
+    if(n && n.nodeType === 3) n = n.parentNode;
+    if(!n || !n.closest) return;
+    var li = n.closest('.li, .li-line');
+    if(!li) return;
+    e.preventDefault();
+    var nl = document.createElement('div');
+    nl.className = li.className;
+    nl.appendChild(document.createElement('br'));
+    li.parentNode.insertBefore(nl, li.nextSibling);
+    var r = document.createRange();
+    r.selectNodeContents(nl);
+    r.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(r);
+  });
+  var normTimer = null;
+  page.addEventListener('input', function(e){
+    if(e && e.isComposing) return;
+    clearTimeout(normTimer);
+    normTimer = setTimeout(function(){ normalizeBlocks(); }, 60);
+  });
+})();
+</script>
+<script src="../assets/editor.js"></script>
+</body>
+</html>
