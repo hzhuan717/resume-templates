@@ -20,7 +20,19 @@
     '.qmt-toolbar button,.qmt-toolbar a.qmt-link{font-family:inherit;font-size:12.5px;cursor:pointer;text-decoration:none;border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;padding:4px 12px;border-radius:6px;transition:.15s;white-space:nowrap;flex:0 0 auto}',
     '.qmt-toolbar button:hover,.qmt-toolbar a.qmt-link:hover{background:#fff;color:#264A5A}',
     '.qmt-badge{display:none;background:#c0392b;color:#fff;border-radius:10px;padding:2px 10px;font-size:12px;flex:0 0 auto}',
-    '@media print{.qmt-toolbar{display:none!important}.page{transform:none!important;margin-bottom:0!important}}'
+    '.qmt-panel{position:fixed;z-index:9998;background:#fff;color:#264A5A;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.28);padding:10px 12px;font-family:' + FONT + ';font-size:13px;min-width:210px;max-width:78vw}',
+    '.qmt-panel-title{font-weight:700;margin:0 0 6px;font-size:12.5px;color:#264A5A}',
+    '.qmt-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 0;border-top:1px solid #eef2f4}',
+    '.qmt-row:first-of-type{border-top:0}',
+    '.qmt-row-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.qmt-mini{font-family:inherit;font-size:12px;cursor:pointer;border:1px solid #b9c8d0;background:#f4f8fa;color:#264A5A;padding:2px 10px;border-radius:6px;white-space:nowrap;flex:0 0 auto}',
+    '.qmt-mini:hover{background:#264A5A;color:#fff}',
+    '.qmt-empty{color:#7a8a93;font-size:12.5px;padding:4px 2px}',
+    '.qmt-swatches{display:grid;grid-template-columns:repeat(8,24px);gap:8px;padding:2px}',
+    '.qmt-swatch{width:24px;height:24px;border-radius:50%;border:2px solid rgba(0,0,0,.12);cursor:pointer;padding:0;transition:.12s}',
+    '.qmt-swatch:hover{transform:scale(1.18)}',
+    '.qmt-hide{display:none!important}',
+    '@media print{.qmt-toolbar{display:none!important}.qmt-panel{display:none!important}.page{transform:none!important;margin-bottom:0!important}}'
   ].join('\n');
   document.head.appendChild(css);
 
@@ -91,6 +103,99 @@
     inp.click();
   }
 
+  /* ---- 换色（模板声明 theme:true 时提供色盘） ---- */
+  var THEME_KEY = 'qmt:theme:' + TPL.id;
+  var PALETTE = [
+    ['#4E7282', '青绿'], ['#2C5F8A', '深蓝'], ['#A34A3E', '砖红'], ['#3A3F44', '墨黑'],
+    ['#5B4E82', '深紫'], ['#5E7346', '橄榄'], ['#8A6D4B', '咖啡'], ['#C07A3A', '橙']
+  ];
+  function darken(hex, f) {
+    var n = parseInt(hex.slice(1), 16);
+    var r = Math.round(((n >> 16) & 255) * f);
+    var g = Math.round(((n >> 8) & 255) * f);
+    var b = Math.round((n & 255) * f);
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+  function applyThemeObj(o) {
+    if (!o) return;
+    document.documentElement.style.setProperty('--teal', o.c);
+    document.documentElement.style.setProperty('--teal-dark', o.d);
+  }
+  function setTheme(c) {
+    var o = { c: c, d: darken(c, 0.62) };
+    applyThemeObj(o);
+    try { localStorage.setItem(THEME_KEY, JSON.stringify(o)); } catch (e) {}
+    toast('配色已更换');
+  }
+  try { applyThemeObj(JSON.parse(localStorage.getItem(THEME_KEY))); } catch (e) {}
+
+  /* ---- 下拉面板：版块管理 / 换色 ---- */
+  var openPanel = null, openBtn = null;
+  function closePanel() {
+    if (openPanel) { openPanel.remove(); openPanel = null; openBtn = null; }
+  }
+  function togglePanel(btn, build) {
+    if (openBtn === btn) { closePanel(); return; }
+    closePanel();
+    var p = document.createElement('div');
+    p.className = 'qmt-panel';
+    build(p);
+    document.body.appendChild(p);
+    var r = btn.getBoundingClientRect();
+    p.style.left = Math.max(8, Math.min(r.left, window.innerWidth - p.offsetWidth - 8)) + 'px';
+    p.style.top = (r.bottom + 6) + 'px';
+    openPanel = p;
+    openBtn = btn;
+  }
+  document.addEventListener('click', function (e) {
+    if (openPanel && !openPanel.contains(e.target) && e.target !== openBtn) closePanel();
+  });
+  function buildSectionPanel(p) {
+    var secs = page.querySelectorAll('section.sec');
+    if (!secs.length) { p.innerHTML = '<div class="qmt-empty">该模板不支持版块管理</div>'; return; }
+    p.innerHTML = '<div class="qmt-panel-title">版块管理 · 点按钮显示/隐藏，改动自动保存</div>';
+    Array.prototype.forEach.call(secs, function (sec, i) {
+      var bar = sec.querySelector('.sec-title .bar');
+      var name = document.createElement('span');
+      name.className = 'qmt-row-name';
+      name.textContent = bar ? bar.textContent.trim() : ('版块 ' + (i + 1));
+      var tg = document.createElement('button');
+      tg.type = 'button';
+      tg.className = 'qmt-mini';
+      function refresh() {
+        tg.textContent = sec.classList.contains('qmt-hide') ? '已隐藏 · 点我显示' : '显示中 · 点我隐藏';
+      }
+      tg.addEventListener('click', function () {
+        sec.classList.toggle('qmt-hide');
+        refresh();
+        save();
+        checkOverflow();
+      });
+      refresh();
+      var row = document.createElement('div');
+      row.className = 'qmt-row';
+      row.appendChild(name);
+      row.appendChild(tg);
+      p.appendChild(row);
+    });
+  }
+  function buildThemePanel(p) {
+    if (!TPL.theme) { p.innerHTML = '<div class="qmt-empty">该模板不支持一键换色</div>'; return; }
+    p.innerHTML = '<div class="qmt-panel-title">皮肤设置 · 点击色块整体换色</div>';
+    var grid = document.createElement('div');
+    grid.className = 'qmt-swatches';
+    PALETTE.forEach(function (def) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'qmt-swatch';
+      b.style.background = def[0];
+      b.title = def[1];
+      b.addEventListener('click', function () { setTheme(def[0]); });
+      grid.appendChild(b);
+    });
+    p.appendChild(grid);
+  }
+
   /* ---- 自动保存 ---- */
   var timer = null;
   function save() {
@@ -135,6 +240,21 @@
     home.href = '../index.html';
     home.textContent = '← 模板库';
     tb.appendChild(home);
+    function mkBtn(label, fn) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.addEventListener('click', fn);
+      return b;
+    }
+    if (page.querySelector('section.sec')) {
+      var secBtn = mkBtn('版块 ▾', function () { togglePanel(secBtn, buildSectionPanel); });
+      tb.appendChild(secBtn);
+    }
+    if (TPL.theme) {
+      var themeBtn = mkBtn('换色 ▾', function () { togglePanel(themeBtn, buildThemePanel); });
+      tb.appendChild(themeBtn);
+    }
     tb.appendChild(hint);
     tb.appendChild(badge);
     [
@@ -145,11 +265,7 @@
       ['导入JSON', importJSON],
       ['恢复原始内容', resetAll]
     ].forEach(function (def) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.textContent = def[0];
-      b.addEventListener('click', def[1]);
-      tb.appendChild(b);
+      tb.appendChild(mkBtn(def[0], def[1]));
     });
     document.body.appendChild(tb);
   }
@@ -172,9 +288,10 @@
   function backupJSON() {
     var data = {
       app: 'qmt-resume', id: TPL.id, name: TPL.name,
-      html: page.innerHTML, photo: null, savedAt: new Date().toISOString()
+      html: page.innerHTML, photo: null, theme: null, savedAt: new Date().toISOString()
     };
     try { data.photo = localStorage.getItem(PHOTO_KEY); } catch (e) {}
+    try { data.theme = localStorage.getItem(THEME_KEY); } catch (e) {}
     download(new Blob([JSON.stringify(data)], { type: 'application/json' }), (TPL.name || '简历') + '-备份.json');
   }
   function importJSON() {
@@ -194,6 +311,8 @@
             localStorage.setItem(HTML_KEY, d.html);
             if (d.photo) localStorage.setItem(PHOTO_KEY, d.photo);
             else localStorage.removeItem(PHOTO_KEY);
+            if (d.theme) localStorage.setItem(THEME_KEY, d.theme);
+            else localStorage.removeItem(THEME_KEY);
           } catch (e) {}
           location.reload();
         } catch (err) { toast('备份文件格式不正确'); }
@@ -203,8 +322,12 @@
     inp.click();
   }
   function resetAll() {
-    if (!confirm('确定恢复为模板示例内容？你的修改和照片将清空（可先备份JSON）。')) return;
-    try { localStorage.removeItem(HTML_KEY); localStorage.removeItem(PHOTO_KEY); } catch (e) {}
+    if (!confirm('确定恢复为模板示例内容？你的修改、照片和配色将清空（可先备份JSON）。')) return;
+    try {
+      localStorage.removeItem(HTML_KEY);
+      localStorage.removeItem(PHOTO_KEY);
+      localStorage.removeItem(THEME_KEY);
+    } catch (e) {}
     location.reload();
   }
 
