@@ -14,12 +14,12 @@
   /* ---- 注入样式（工具条 + 打印时清除缩放） ---- */
   var css = document.createElement('style');
   css.textContent = [
-    '.qmt-toolbar{position:fixed;left:50%;transform:translateX(-50%);top:0;z-index:9999;display:flex;flex-wrap:nowrap;align-items:center;gap:6px;max-width:100vw;padding:6px 10px;background:rgba(38,74,90,.96);color:#fff;font-size:12px;border-radius:0 0 10px 10px;box-shadow:0 4px 16px rgba(0,0,0,.22);font-family:' + FONT + ';white-space:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}',
+    '.qmt-toolbar{position:fixed;left:50%;transform:translateX(-50%);top:0;z-index:9999;display:flex;flex-wrap:nowrap;align-items:center;gap:10px;max-width:100vw;padding:8px 14px;background:rgba(38,74,90,.96);color:#fff;font-size:12.5px;border-radius:0 0 10px 10px;box-shadow:0 4px 16px rgba(0,0,0,.22);font-family:' + FONT + ';white-space:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}',
     '.qmt-toolbar::-webkit-scrollbar{display:none}',
-    '.qmt-toolbar .qmt-hint{opacity:.75;font-size:11.5px;max-width:230px;overflow:hidden;text-overflow:ellipsis}',
-    '.qmt-toolbar button,.qmt-toolbar a.qmt-link{font-family:inherit;font-size:12px;cursor:pointer;text-decoration:none;border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;padding:3px 10px;border-radius:6px;transition:.15s;white-space:nowrap;flex:0 0 auto}',
+    '.qmt-toolbar .qmt-hint{opacity:.8;font-size:12.5px;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}',
+    '.qmt-toolbar button,.qmt-toolbar a.qmt-link{font-family:inherit;font-size:12.5px;cursor:pointer;text-decoration:none;border:1px solid rgba(255,255,255,.55);background:transparent;color:#fff;padding:4px 12px;border-radius:6px;transition:.15s;white-space:nowrap;flex:0 0 auto}',
     '.qmt-toolbar button:hover,.qmt-toolbar a.qmt-link:hover{background:#fff;color:#264A5A}',
-    '.qmt-badge{display:none;background:#c0392b;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;flex:0 0 auto}',
+    '.qmt-badge{display:none;background:#c0392b;color:#fff;border-radius:10px;padding:2px 10px;font-size:12px;flex:0 0 auto}',
     '@media print{.qmt-toolbar{display:none!important}.page{transform:none!important;margin-bottom:0!important}}'
   ].join('\n');
   document.head.appendChild(css);
@@ -126,10 +126,10 @@
     tb.className = 'qmt-toolbar';
     var hint = document.createElement('span');
     hint.className = 'qmt-hint';
-    hint.textContent = '点文字直接改 · 自动存本机 · 导出选「另存为PDF」边距「无」';
+    hint.textContent = '点正文即可直接改 · Enter 新建一条 · 建议单页';
     badge = document.createElement('span');
     badge.className = 'qmt-badge';
-    badge.textContent = '已超一页';
+    badge.textContent = '内容已超出一页';
     var home = document.createElement('a');
     home.className = 'qmt-link';
     home.href = '../index.html';
@@ -139,11 +139,11 @@
     tb.appendChild(badge);
     [
       ['替换照片', pickPhoto],
-      ['导出PDF', function () { window.print(); }],
-      ['存HTML', exportHTML],
-      ['备份', backupJSON],
-      ['导入', importJSON],
-      ['恢复示例', resetAll]
+      ['打印 / 导出PDF', function () { window.print(); }],
+      ['下载HTML', exportHTML],
+      ['备份JSON', backupJSON],
+      ['导入JSON', importJSON],
+      ['恢复原始内容', resetAll]
     ].forEach(function (def) {
       var b = document.createElement('button');
       b.type = 'button';
