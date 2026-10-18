@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hzhuan717.github.io/resume-templates/sitemap.xml

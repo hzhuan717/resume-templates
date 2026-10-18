@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>模板详情 · 简历模板库</title>
+<meta name="description" content="查看简历模板的整页预览、页数、照片位和适用风格，再决定是否使用。免注册，打开即可编辑。">
+<meta name="theme-color" content="#264A5A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23264A5A'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='sans-serif'%3E简%3C/text%3E%3C/svg%3E">
+<style>
+:root{--teal:#4E7282;--teal-dark:#264A5A;--ink:#1f2f36;--muted:#65777f;--bg:#f5f8f9;--line:#dde6e9;--warm:#c0392b;--radius:12px;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB",sans-serif}
+*{box-sizing:border-box}html,body{margin:0;padding:0}body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.6;-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}button{font-family:inherit;cursor:pointer}img{max-width:100%}.wrap{max-width:1200px;margin:0 auto;padding:0 24px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.site-header{position:sticky;top:0;z-index:900;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav{height:64px;display:flex;align-items:center;gap:28px}.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;color:var(--teal-dark)}.brand-mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(145deg,var(--teal),var(--teal-dark));color:#fff;display:grid;place-items:center;font-size:15px}.brand small{display:block;font-size:10px;line-height:1.1;color:var(--muted);font-weight:500;letter-spacing:1.5px}.nav-links{display:flex;gap:24px;font-size:14px;color:#41555e}.nav-links a:hover{color:var(--teal-dark)}.nav-spacer{flex:1}.nav-cta{background:var(--teal);color:#fff;border-radius:8px;padding:9px 18px;font-size:14px;font-weight:700}
+.crumb{padding:18px 0 0;font-size:12.5px;color:var(--muted)}.crumb a{color:var(--teal);font-weight:600}.crumb span{margin:0 7px;color:#b3c1c6}
+.main{padding:18px 0 56px}.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.75fr);gap:30px;align-items:start}
+.preview-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.preview-stage{position:relative;background:#e9eef1;border-radius:8px;padding:20px;display:flex;justify-content:center;align-items:flex-start;overflow:hidden}
+.preview-stage img{display:block;width:min(100%,680px);height:auto;box-shadow:0 6px 24px rgba(24,50,62,.16);background:#fff;border:1px solid #eef2f4}
+.preview-tools{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 2px 0;flex-wrap:wrap}
+.preview-tools .hint{font-size:12px;color:var(--muted)}
+.btn{border:1px solid var(--line);background:#fff;color:var(--teal-dark);border-radius:7px;padding:8px 13px;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--teal);background:#f4f9fa}
+.btn-primary{background:var(--teal);border-color:var(--teal);color:#fff}.btn-primary:hover{background:var(--teal-dark);border-color:var(--teal-dark);color:#fff}
+.info h1{margin:2px 0 8px;font-size:30px;letter-spacing:-.4px;line-height:1.3}.info .sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+.meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}.pill{background:#fff;border:1px solid var(--line);border-radius:99px;padding:4px 10px;font-size:11.5px;color:#4c626b}.pill.warm{color:var(--warm);border-color:#f0d2cc;background:#fdf5f3}
+.buy{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 10px 28px rgba(28,58,70,.06)}
+.buy h2{margin:0 0 4px;font-size:16px}.buy .price{font-size:22px;font-weight:800;color:var(--teal-dark);margin:4px 0 2px}.buy .price small{font-size:11px;color:var(--muted);font-weight:400}.buy .cta{display:block;text-align:center;background:var(--teal);color:#fff;border-radius:8px;padding:12px;font-size:14px;font-weight:800;margin:12px 0 8px}.buy .cta:hover{background:var(--teal-dark)}.buy .note{font-size:11.5px;color:var(--muted);text-align:center;margin:0 0 10px}.buy ul{list-style:none;margin:12px 0 0;padding:12px 0 0;border-top:1px solid var(--line);font-size:12px;color:#52666e;display:grid;gap:7px}.buy li::before{content:"✓";color:var(--teal);margin-right:6px;font-weight:800}
+.section{margin-top:30px}.section h2{font-size:17px;margin:0 0 12px}.desc{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;font-size:13.5px;color:#52666e;line-height:1.9}.desc b{color:var(--teal-dark)}
+.modules{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.modules span{border:1px solid var(--line);background:#f8fbfb;border-radius:6px;padding:4px 9px;font-size:11.5px;color:#52666e}
+.related{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.rel-card{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;transition:.2s}.rel-card:hover{box-shadow:0 8px 20px rgba(30,60,72,.12);transform:translateY(-2px)}.rel-card img{display:block;width:100%;aspect-ratio:794/1123;object-fit:cover}.rel-card b{display:block;padding:8px 9px;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mobile-cta{display:none}
+.site-footer{background:#1b3039;color:#b9cbd1;padding:34px 0 24px;margin-top:40px}.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:14px;display:flex;justify-content:space-between;gap:14px;font-size:11.5px;color:#7f979f;flex-wrap:wrap}.site-footer .brand{color:#fff;margin-bottom:8px}.site-footer .brand small{color:#8fa8b1}.site-footer p{margin:0;font-size:12.5px;color:#8fa8b1;max-width:520px;line-height:1.9}
+.error{background:#fff;border:1px solid var(--line);border-radius:12px;padding:40px;text-align:center}.error b{display:block;font-size:18px;margin-bottom:8px}.error a{color:var(--teal);font-weight:700}
+@media (max-width:960px){.layout{grid-template-columns:1fr}.buy{order:-1}.nav-links{display:none}.related{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.wrap{padding:0 14px}.nav{height:56px}.nav-cta{padding:7px 12px;font-size:12px}.info h1{font-size:24px}.preview-stage{padding:10px}.preview-tools{gap:6px}.main{padding-top:8px}.mobile-cta{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:950;background:#fff;border-top:1px solid var(--line);padding:10px 14px;gap:10px;align-items:center;box-shadow:0 -8px 24px rgba(20,44,54,.1)}.mobile-cta .price{font-size:13px;font-weight:800;color:var(--teal-dark);flex:0 0 auto}.mobile-cta .cta{flex:1;text-align:center;background:var(--teal);color:#fff;border-radius:8px;padding:11px;font-weight:800;font-size:14px}body{padding-bottom:64px}.site-footer{padding-bottom:20px}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">简</span><span>简历模板库<small>RESUME TEMPLATES</small></span></a>
+    <nav class="nav-links" aria-label="主导航"><a href="index.html#library">模板库</a><a href="index.html#how">怎么用</a><a href="index.html#privacy">隐私</a><a href="my-resumes.html">我的简历</a><a href="index.html#faq">常见问题</a></nav>
+    <div class="nav-spacer"></div>
+    <a class="nav-cta" href="index.html#library">全部模板</a>
+  </div>
+</header>
+
+<main class="wrap main" id="detail">
+  <div class="crumb"><a href="index.html">首页</a><span>/</span><a href="index.html#library">模板库</a><span>/</span><em id="crumbName">模板详情</em></div>
+  <div id="content"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">简</span><span>简历模板库<small>RESUME TEMPLATES</small></span></a>
+    <p>免费、免注册的中文简历模板库。打开即改，数据留在本机，导出 PDF 带走。</p>
+    <div class="footer-bottom"><span>© 2026 简历模板库 · 静态站点，无服务器</span><span>模板仅供个人求职使用</span></div>
+  </div>
+</footer>
+
+<script src="assets/templates.js"></script>
+<script>
+var EXTRA = [{ id:'classic-teal', name:'经典青绿丝带（原版）', cat:'简约', photo:true, pages:1 }];
+var LIST = EXTRA.concat(window.QMT_LIST || []);
+var id = new URLSearchParams(location.search).get('id') || 't001';
+var t = null;
+for (var i=0;i<LIST.length;i++) if (LIST[i].id === id) t = LIST[i];
+var content = document.getElementById('content');
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function url(x){ return 'template.html?id=' + encodeURIComponent(x.id); }
+function useUrl(x){ return 'templates/' + encodeURIComponent(x.id) + '.html'; }
+
+if (!t){
+  document.title = '模板不存在 · 简历模板库';
+  content.innerHTML = '<div class="error"><b>没有找到这套模板</b><p>链接可能过期，或者模板编号写错了。</p><a href="index.html#library">返回模板库 →</a></div>';
+} else {
+  document.title = t.name + ' · 简历模板库';
+  var desc = '「' + t.name + '」是一套' + t.cat + '风格的中文简历模板，共 ' + (t.pages || 1) + ' 页' + (t.photo ? '，带可替换证件照位' : '，不含照片位') + '。免注册，打开即可在纸面上直接修改，导出 A4 PDF。';
+  document.getElementById('crumbName').textContent = t.name;
+  var metaDesc = document.querySelector('meta[name=description]');
+  if (metaDesc) metaDesc.setAttribute('content', desc);
+  var related = LIST.filter(function(x){ return x.cat === t.cat && x.id !== t.id; }).slice(0,4);
+  content.innerHTML =
+    '<div class="layout">' +
+      '<div>' +
+        '<div class="preview-card">' +
+          '<div class="preview-stage"><a href="assets/thumbs/' + esc(t.id) + '.webp" target="_blank" rel="noopener" title="打开原图"><img id="bigImg" src="assets/thumbs/' + esc(t.id) + '.webp" alt="' + esc(t.name) + ' 整页预览" width="794" height="1123"></a></div>' +
+          '<div class="preview-tools"><span class="hint">整页预览 · 点击图片可看原图</span><span><a class="btn" href="assets/thumbs/' + esc(t.id) + '.webp" target="_blank" rel="noopener">看原图</a> <a class="btn" href="' + useUrl(t) + '">打开编辑器</a></span></div>' +
+        '</div>' +
+        '<div class="section"><h2>这套模板适合谁</h2><div class="desc">' + esc(desc) + '<div class="modules"><span>基本信息</span><span>教育背景</span><span>工作 / 实习</span><span>项目经历</span><span>技能特长</span><span>荣誉证书</span><span>自我评价</span></div></div></div>' +
+      '</div>' +
+      '<aside class="info">' +
+        '<h1>' + esc(t.name) + '</h1>' +
+        '<p class="sub">' + esc(t.cat) + '风格 · ' + (t.pages || 1) + ' 页 · ' + (t.photo ? '可换证件照' : '无照片位') + '</p>' +
+        '<div class="meta-row"><span class="pill">' + esc(t.cat) + '</span><span class="pill">' + (t.pages || 1) + ' 页</span>' + (t.photo ? '<span class="pill warm">可换照片</span>' : '<span class="pill">无照片位</span>') + '<span class="pill">中文</span></div>' +
+        '<div class="buy">' +
+          '<h2>使用这套模板</h2><div class="price">免费 <small>· 无需注册</small></div>' +
+          '<a class="cta" href="' + useUrl(t) + '">打开并开始编辑</a>' +
+          '<p class="note">内容只保存在你的浏览器，不上传</p>' +
+          '<ul><li>打开即改，自动保存</li><li>可替换证件照</li><li>工具条可换强调色 / 字体</li><li>打印或导出 A4 PDF</li><li>可下载 HTML / 备份 JSON</li></ul>' +
+        '</div>' +
+        '<div class="section"><h2>相关模板</h2><div class="related">' + related.map(function(x){
+          return '<a class="rel-card" href="' + url(x) + '"><img src="assets/thumbs/' + esc(x.id) + '.webp" alt="' + esc(x.name) + '" loading="lazy"><b>' + esc(x.name) + '</b></a>';
+        }).join('') + '</div></div>' +
+      '</aside>' +
+    '</div>' +
+    '<div class="mobile-cta"><span class="price">免费</span><a class="cta" href="' + useUrl(t) + '">打开并编辑</a></div>';
+}
+</script>
+</body>
+</html>

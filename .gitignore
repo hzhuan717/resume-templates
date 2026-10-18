@@ -1,1 +1,5 @@
 _build/
+_shots/
+_probe/
+_chrome_tmp*/
+*.log

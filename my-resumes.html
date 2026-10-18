@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的简历 · 简历模板库</title>
+<meta name="description" content="查看这台浏览器里保存的简历草稿，继续编辑或删除。草稿不上传，换设备请用 JSON 备份。">
+<style>
+:root{--brand:#0E7C86;--brand-dark:#0B5E66;--ink:#102A33;--muted:#5B7078;--line:#E3EAEE;--bg:#F6F8FA;--card:#fff;--radius:14px;--shadow:0 10px 28px rgba(15,42,51,.08)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;line-height:1.65}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.site-header{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.header-inner{display:flex;align-items:center;gap:28px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.02em;white-space:nowrap}
+.logo-mark{width:30px;height:30px;border-radius:8px;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:15px;font-weight:700}
+.logo small{display:block;font-size:9px;letter-spacing:.22em;color:var(--muted);font-weight:600}
+.nav-links{display:flex;gap:22px;font-size:13.5px;color:#3D555E}
+.nav-links a:hover{color:var(--brand)}
+.nav-spacer{flex:1}
+.nav-cta{background:var(--brand);color:#fff;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:700}
+.nav-cta:hover{background:var(--brand-dark)}
+main{padding:44px 0 72px}
+.eyebrow{color:var(--brand);font-size:12px;font-weight:800;letter-spacing:.18em}
+h1{font-size:clamp(26px,3.2vw,38px);line-height:1.25;margin:8px 0 10px;letter-spacing:-.02em}
+.lede{color:var(--muted);font-size:14px;max-width:640px;margin:0}
+.head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:26px}
+.tools{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:#B9CBD2}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:var(--brand-dark)}
+.btn.danger{color:#B42318;border-color:#F2C7C2}
+.btn.danger:hover{background:#FFF5F4}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 28px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:22px;line-height:1.2}
+.stat span{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card .thumb{display:block;aspect-ratio:210/297;background:#EEF3F5;overflow:hidden;position:relative}
+.card .thumb img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.card .thumb .badge{position:absolute;left:10px;top:10px;background:rgba(255,255,255,.94);color:#264A5A;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700}
+.card-body{padding:14px 14px 12px;display:flex;flex-direction:column;gap:7px;flex:1}
+.card-title{font-size:15px;font-weight:800;line-height:1.4}
+.card-meta{font-size:11.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+.card-actions{display:flex;gap:8px;margin-top:auto;padding-top:8px}
+.card-actions .btn{flex:1;padding:7px 8px;font-size:12.5px}
+.empty{background:#fff;border:1px dashed #C9D8DE;border-radius:16px;padding:46px 24px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
+.empty .btn{margin-top:16px}
+.note{font-size:12px;color:var(--muted);margin-top:26px;padding-top:16px;border-top:1px solid var(--line)}
+footer{border-top:1px solid var(--line);background:#fff;padding:22px 0;color:var(--muted);font-size:12px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{grid-template-columns:1fr 1fr}.nav-links{display:none}}
+@media(max-width:560px){.header-inner{gap:10px}.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.wrap{padding:0 16px}main{padding:28px 0 48px}.head-row{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="index.html" aria-label="简历模板库首页"><span class="logo-mark">简</span><span>简历模板库<small>RESUME TEMPLATES</small></span></a>
+    <nav class="nav-links" aria-label="主导航">
+      <a href="index.html">模板库</a>
+      <a href="index.html#how">怎么用</a>
+      <a href="index.html#privacy">隐私</a>
+      <a href="my-resumes.html" aria-current="page">我的简历</a>
+    </nav>
+    <div class="nav-spacer"></div>
+    <a class="nav-cta" href="index.html#library">继续挑模板 <span aria-hidden="true">→</span></a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="head-row">
+    <div>
+      <div class="eyebrow">MY RESUMES</div>
+      <h1>我的简历</h1>
+      <p class="lede">这里只列出这台浏览器里保存过的草稿。没有账号、没有服务器；换电脑前请先导出 JSON 备份。</p>
+    </div>
+    <div class="tools">
+      <button class="btn" type="button" id="backupAll">备份全部</button>
+      <a class="btn primary" href="index.html#library">新建一份</a>
+    </div>
+  </div>
+
+  <div class="stats" aria-label="草稿概况">
+    <div class="stat"><b id="statCount">0</b><span>份本机草稿</span></div>
+    <div class="stat"><b id="statLatest">—</b><span>最近编辑</span></div>
+    <div class="stat"><b>本机</b><span>不上传 · 清理浏览器会删除</span></div>
+  </div>
+
+  <div id="grid" class="grid" aria-live="polite"></div>
+  <div id="empty" class="empty" hidden>
+    <b>还没有保存过简历</b>
+    <p>挑一套模板，点正文直接改，改动会自动出现在这里。</p>
+    <a class="btn primary" href="index.html#library">去挑一套模板</a>
+  </div>
+
+  <p class="note">提示：同一套模板只保留一份草稿；想同时投不同岗位，可以选两套模板分别编辑，或先用「备份JSON」留档。清理浏览器数据、换浏览器或无痕窗口都会看不到这里的草稿。</p>
+</main>
+
+<footer><div class="wrap">© 2026 简历模板库 · 静态站点，无服务器 · 草稿保存在浏览器 localStorage</div></footer>
+
+<script src="assets/templates.js"></script>
+<script>
+(function(){
+  'use strict';
+  var EXTRA = [{ id:'classic-teal', name:'经典青绿丝带（原版）', cat:'简约', photo:true, pages:1 }];
+  var LIST = EXTRA.concat(window.QMT_LIST || []);
+  var grid = document.getElementById('grid'), empty = document.getElementById('empty');
+  var countEl = document.getElementById('statCount'), latestEl = document.getElementById('statLatest');
+  var items = [];
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function findTpl(id){ for (var i=0;i<LIST.length;i++) if (LIST[i].id === id) return LIST[i]; return null; }
+  function fmt(ts){
+    if (!ts) return '时间未知';
+    var d = new Date(ts), now = new Date();
+    var hm = ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+    if (d.toDateString() === now.toDateString()) return '今天 '+hm;
+    if (d.getFullYear() === now.getFullYear()) return (d.getMonth()+1)+'月'+d.getDate()+'日 '+hm;
+    return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+  }
+  function readMeta(id){
+    try { return JSON.parse(localStorage.getItem('qmt:meta:'+id) || 'null'); } catch(e){ return null; }
+  }
+  function scan(){
+    var arr = [];
+    try {
+      for (var i=0;i<localStorage.length;i++) {
+        var k = localStorage.key(i) || '';
+        if (k.indexOf('qmt:html:') !== 0) continue;
+        var id = k.slice(9);
+        var t = findTpl(id);
+        if (!t) continue;
+        var m = readMeta(id) || {};
+        arr.push({ id:id, tpl:t, updated:m.updated || 0 });
+      }
+    } catch(e) {}
+    arr.sort(function(a,b){ return (b.updated||0) - (a.updated||0); });
+    return arr;
+  }
+  function render(){
+    var list = scan();
+    items = list;
+    countEl.textContent = list.length;
+    latestEl.textContent = list.length && list[0].updated ? fmt(list[0].updated) : '—';
+    empty.hidden = list.length > 0;
+    grid.hidden = list.length === 0;
+    grid.innerHTML = list.map(function(x){
+      var t = x.tpl;
+      var meta = readMeta(x.id) || {};
+      var pages = (t.pages && t.pages > 1) ? t.pages + ' 页' : '1 页';
+      return '<article class="card" data-id="'+esc(x.id)+'">'+
+        '<a class="thumb" href="templates/'+encodeURIComponent(x.id)+'.html" aria-label="继续编辑 '+esc(t.name)+'">'+
+          '<img src="assets/thumbs/'+encodeURIComponent(x.id)+'.webp" alt="'+esc(t.name)+' 预览" width="600" height="849" loading="lazy">'+
+          '<span class="badge">'+esc(t.cat)+' · '+pages+'</span>'+
+        '</a>'+
+        '<div class="card-body">'+
+          '<a class="card-title" href="templates/'+encodeURIComponent(x.id)+'.html">'+esc(t.name)+'</a>'+
+          '<div class="card-meta"><span>最后编辑：'+esc(fmt(x.updated))+'</span></div>'+
+          '<div class="card-actions">'+
+            '<a class="btn primary" href="templates/'+encodeURIComponent(x.id)+'.html">继续编辑</a>'+
+            '<button class="btn danger" type="button" data-del="'+esc(x.id)+'">删除</button>'+
+          '</div>'+
+        '</div>'+
+      '</article>';
+    }).join('');
+  }
+
+  grid.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-del]');
+    if (!btn) return;
+    var id = btn.getAttribute('data-del');
+    var t = findTpl(id);
+    if (!confirm('删除「'+(t?t.name:id)+'」在本机的草稿？照片、配色和字体设置也会一起删除，且不可恢复。')) return;
+    try {
+      ['qmt:html:','qmt:photo:','qmt:theme:','qmt:font:','qmt:meta:','qmt:photoPos:','qmt:photoZoom:'].forEach(function(p){ localStorage.removeItem(p+id); });
+    } catch(e) {}
+    render();
+  });
+
+  document.getElementById('backupAll').addEventListener('click', function(){
+    if (!items.length) return alert('还没有可备份的草稿。');
+    var data = { version: 1, exportedAt: new Date().toISOString(), items: [] };
+    items.forEach(function(x){
+      data.items.push({
+        id: x.id, name: x.tpl.name,
+        html: localStorage.getItem('qmt:html:'+x.id) || '',
+        photo: localStorage.getItem('qmt:photo:'+x.id) || '',
+        theme: localStorage.getItem('qmt:theme:'+x.id) || '',
+        font: localStorage.getItem('qmt:font:'+x.id) || '',
+        photoPos: localStorage.getItem('qmt:photoPos:'+x.id) || '',
+        photoZoom: localStorage.getItem('qmt:photoZoom:'+x.id) || '',
+        meta: readMeta(x.id)
+      });
+    });
+    var blob = new Blob([JSON.stringify(data, null, 1)], { type:'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '我的简历-备份-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
