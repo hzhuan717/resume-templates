@@ -129,7 +129,7 @@
     '@page{size:A4;margin:10mm}',
     '@media print{',
     '  html,body{background:#fff!important;margin:0!important;padding:0!important}',
-    '  .qmt-toolbar,.qmt-panel,.qmt-badge{display:none!important}',
+    '  .qmt-toolbar,.qmt-panel,.qmt-badge,.qmt-form,.qmt-form-btn{display:none!important}',
     '  .page{width:190mm!important;min-height:0!important;margin:0!important;padding:0!important;',
     '        box-shadow:none!important;border-radius:0!important;transform:none!important;overflow:visible!important}',
     '  .sec,.entry,tr{break-inside:avoid}',
@@ -297,11 +297,18 @@
     var hPerPage = w * 297 / 210;
     return Math.max(1, Math.ceil((page.scrollHeight - 2) / hPerPage));
   }
+  function isPdfPage() { return !!(page && page.classList.contains('qmt-pdf')); }
   function checkOverflow() {
     var n = pageCount();
     var pe = document.getElementById('qmtPageState');
     if (pe) pe.textContent = n + ' 页';
     if (!badge) return;
+    var designed = (window.QMT_TPL && +window.QMT_TPL.pages) || 1;
+    if (designed > 1) {
+      badge.textContent = n > designed ? ('当前 ' + n + ' 页 · 超出原版') : ('共 ' + designed + ' 页');
+      badge.style.display = 'inline-block';
+      return;
+    }
     badge.textContent = n > 1 ? ('当前 ' + n + ' 页 · 建议精简') : '';
     badge.style.display = n > 1 ? 'inline-block' : 'none';
   }
@@ -499,6 +506,7 @@
     return seg.length > 12 ? seg.slice(0, 12) + '…' : seg;
   }
   function sectionGroups() {
+    if (isPdfPage()) return outlineGroups();
     /* 1) 结构化模板（classic-teal）：精确按 section.sec */
     var secs = page.querySelectorAll('section.sec');
     if (secs.length) {
@@ -544,7 +552,8 @@
     }
     var groups = outlineGroups();
     if (!groups.length) return [];
-    var all = Array.prototype.slice.call(page.querySelectorAll('p')).filter(function (p) {
+    var isPdf = isPdfPage();
+    var all = Array.prototype.slice.call(isPdf ? page.querySelectorAll('.qmt-t') : page.querySelectorAll('p')).filter(function (p) {
       return !p.closest('.qmt-photo') && (p.innerText || '').trim();
     });
     var items = groups.map(function (g) {
@@ -973,7 +982,7 @@
     var names = ['基本信息', '求职意向', '教育背景', '工作经历', '实习经历', '项目经历', '校园经历', '技能特长', '技能证书', '荣誉证书', '自我评价', '兴趣爱好'];
     var out = [];
     names.forEach(function (n) {
-      var all = page.querySelectorAll('p,td,div,span,h1,h2,h3');
+      var all = page.querySelectorAll('p,td,div,span,h1,h2,h3,.qmt-t');
       for (var i = 0; i < all.length; i++) {
         var el = all[i];
         if (el.children.length > 2) continue;
@@ -1062,7 +1071,22 @@
     function close() { if (mask.parentNode) mask.parentNode.removeChild(mask); document.removeEventListener('keydown', onKey); }
     function onKey(e) { if (e.key === 'Escape') close(); }
     mask.querySelector('[data-close]').addEventListener('click', close);
-    mask.querySelector('[data-go]').addEventListener('click', function () { close(); setTimeout(function () { window.print(); }, 60); });
+    mask.querySelector('[data-go]').addEventListener('click', function () {
+      close();
+      if (isPdfPage()) {
+        var n = (window.QMT_TPL && +window.QMT_TPL.pages) || 1;
+        if (!document.getElementById('qmt-pdf-print')) {
+          var st = document.createElement('style');
+          st.id = 'qmt-pdf-print';
+          st.textContent = '@media print{@page{size:A4;margin:0}' +
+            '.qmt-pdf{width:210mm!important;height:' + (297 * n) + 'mm!important;min-height:0!important;margin:0!important;padding:0!important;transform:none!important;box-shadow:none!important;border-radius:0!important;overflow:visible!important}' +
+            '.qmt-pdf .qmt-bg{width:210mm!important;height:' + (297 * n) + 'mm!important;object-fit:fill!important}' +
+            '.qmt-pdf .qmt-t{print-color-adjust:exact;-webkit-print-color-adjust:exact}}';
+          document.head.appendChild(st);
+        }
+      }
+      setTimeout(function () { window.print(); }, 60);
+    });
     mask.addEventListener('click', function (e) { if (e.target === mask) close(); });
     document.addEventListener('keydown', onKey);
     mask.querySelector('[data-go]').focus();
@@ -1292,6 +1316,7 @@
      这类段落来自 Word 的“固定行距”，直接渲染会让两行字叠在一起；
      只修有文字的段落，保留空段落作为间距。 */
   function normalizeLineHeight() {
+    if (isPdfPage()) return;
     var ps = page.querySelectorAll('p[style*="line-height"]');
     Array.prototype.forEach.call(ps, function (p) {
       var lh = parseFloat(p.style.lineHeight);
@@ -1302,6 +1327,7 @@
   /* 页头模板的“个人简历”是 36pt，但 Word 导出的首行只有 14.23pt，字被行高裁掉。
      只放宽页头锚点的首行，不动其它行；挤出纸张则回退。 */
   function fixHeaderLayout() {
+    if (isPdfPage()) return;
     var anchors = page.querySelectorAll('.qmt-anchor');
     for (var i = 0; i < anchors.length; i++) {
       var a = anchors[i];
@@ -1319,6 +1345,7 @@
   /* Word 转 HTML 后，章节标题和正文锚点共用一条边线，文字的字体度量会压到丝带上。
      给紧贴标题下沿的正文锚点留 6pt 上内边距，不改锚点坐标，避免整页级联位移。 */
   function padSectionStarts() {
+    if (isPdfPage()) return;
     var TITLES = ['基本信息', '教育背景', '工作经历', '实习经历', '项目经历', '校园经历',
       '技能证书', '荣誉证书', '自我评价', '兴趣爱好', '专业技能', '个人信息'];
     var anchors = page.querySelectorAll('.qmt-anchor');
