@@ -95,6 +95,7 @@
     '.qmt-form-btn:hover{background:#0a6b73}',
     '@media (max-width:700px){.qmt-form-btn{right:12px;bottom:12px;padding:10px 14px;font-size:12.5px}}',
     'body.qmt-form-open{padding-bottom:330px!important}',
+    'body.qmt-form-open .qmt-form-btn{display:none!important}',
     '@media (max-width:700px){.qmt-form{height:56vh}.qmt-form-body{grid-template-columns:1fr;padding:10px 12px 14px}body.qmt-form-open{padding-bottom:58vh!important}}',
     '@media print{.qmt-rail{display:none!important}}',
     /* ===== 面板：白底 + 蓝色系 ===== */
@@ -551,7 +552,18 @@
       }).filter(function (s) { return s.ps.length; });
     }
     var groups = outlineGroups();
-    if (!groups.length) return [];
+    if (!groups.length) {
+      var loose = Array.prototype.slice.call(page.querySelectorAll(isPdfPage() ? '.qmt-t' : 'p,li')).filter(function (el) {
+        return (el.innerText || '').trim() && !el.closest('.qmt-photo');
+      });
+      if (!loose.length) {
+        loose = Array.prototype.slice.call(page.querySelectorAll('td')).filter(function (el) {
+          return (el.innerText || '').trim().length > 1;
+        });
+      }
+      if (!loose.length) return [];
+      return [{ label: '全部内容', titleEl: null, ps: loose.slice(0, 80) }];
+    }
     var isPdf = isPdfPage();
     var all = Array.prototype.slice.call(isPdf ? page.querySelectorAll('.qmt-t') : page.querySelectorAll('p')).filter(function (p) {
       return !p.closest('.qmt-photo') && (p.innerText || '').trim();
@@ -589,7 +601,7 @@
     var lab = document.createElement('label');
     var input, txt = (p.innerText || '').trim();
     var m = txt.match(/^([^：:]{1,12})[：:]\s*([\s\S]*)$/);
-    var isBasic = section.label === '基本信息';
+    var isBasic = /基本信息|个人资料|个人信息|联系方式/.test(section.label);
     var lblEl = p.querySelector && p.querySelector('.lbl');
     if (lblEl) {
       var lname = (lblEl.textContent || '').trim();
@@ -917,7 +929,7 @@
     tb.className = 'qmt-toolbar';
     var hint = document.createElement('span');
     hint.className = 'qmt-hint';
-    hint.textContent = '点正文即可直接改 · Enter 新建一条 · Ctrl+Z 撤销 · 建议单页';
+    hint.textContent = '下方按模块填写 · 也可直接点正文修改 · Ctrl+Z 撤销';
     badge = document.createElement('span');
     badge.className = 'qmt-badge';
     badge.textContent = '内容已超出一页';
@@ -964,7 +976,9 @@
     }
     window.addEventListener('resize', syncToolbarSpace);
     syncToolbarSpace();
-    buildRail();
+    /* 编辑区固定在底部、默认展开，像全民简历一样；右侧不再放结构栏 */
+    buildForm();
+    toggleForm(true);
     var fbtn = document.createElement('button');
     fbtn.type = 'button';
     fbtn.className = 'qmt-form-btn';
@@ -979,14 +993,15 @@
 
   /* ---- 右侧常驻「简历结构」栏（大屏） ---- */
   function outlineGroups() {
-    var names = ['基本信息', '求职意向', '教育背景', '工作经历', '实习经历', '项目经历', '校园经历', '技能特长', '技能证书', '荣誉证书', '自我评价', '兴趣爱好'];
+    var names = ['基本信息', '个人资料', '个人信息', '联系方式', '求职意向', '教育背景', '工作经历', '实习经历', '项目经历', '校园经历', '技能特长', '技能证书', '荣誉证书', '自我评价', '兴趣爱好', '主修课程', '个人荣誉'];
     var out = [];
     names.forEach(function (n) {
       var all = page.querySelectorAll('p,td,div,span,h1,h2,h3,.qmt-t');
       for (var i = 0; i < all.length; i++) {
         var el = all[i];
         if (el.children.length > 2) continue;
-        if ((el.textContent || '').replace(/[\s\u3000]/g, '') === n) {
+        var et = (el.textContent || '').replace(/[\s\u3000]/g, '');
+        if (et === n || (isPdfPage() && et.indexOf(n) === 0)) {
           out.push({ els: [el], label: n });
           break;
         }
