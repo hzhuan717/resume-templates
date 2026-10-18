@@ -69,6 +69,33 @@
     '.qmt-rail-eye.off{color:#b45309}',
     '.qmt-rail-foot{border-top:1px solid #eef2f4;margin-top:9px;padding-top:8px;color:#7a8a93;font-size:11px;line-height:1.5}',
     '@media (max-width:1360px){.qmt-rail{display:none}}',
+    '.qmt-form{position:fixed;left:0;right:0;bottom:0;height:310px;background:#fff;z-index:2147483200;border-top:1px solid #dfe8ed;box-shadow:0 -10px 34px rgba(16,40,52,.16);display:flex;flex-direction:column;font-family:' + FONT + ';color:#264a5a;transform:translateY(102%);transition:transform .22s ease}',
+    '.qmt-form.open{transform:none}',
+    '.qmt-form-head{height:42px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid #eef2f4;flex:0 0 auto}',
+    '.qmt-form-head b{font-size:13.5px}',
+    '.qmt-form-head span{font-size:11.5px;color:#7a8a93}',
+    '.qmt-form-head button{margin-left:auto;border:0;background:#f4f7f9;color:#264a5a;border-radius:7px;padding:6px 10px;font-size:12px;cursor:pointer}',
+    '.qmt-form-tabs{display:flex;gap:2px;overflow-x:auto;padding:0 12px;border-bottom:1px solid #eef2f4;flex:0 0 auto;scrollbar-width:thin}',
+    '.qmt-form-tab{flex:0 0 auto;border:0;background:transparent;color:#7a8a93;padding:10px 11px 9px;font-size:12.5px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}',
+    '.qmt-form-tab .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22b8a6;margin-right:5px;vertical-align:1px}',
+    '.qmt-form-tab .dot.off{background:#cbd6dc}',
+    '.qmt-form-photo{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:2px 0 6px}',
+    '.qmt-form-photo button{border:0;border-radius:7px;background:#e6f4f5;color:#0e7c86;font-size:12px;padding:7px 11px;cursor:pointer}',
+    '.qmt-form-photo span{font-size:11.5px;color:#7a8a93}',
+    '.qmt-form-tab.on{color:#0e7c86;font-weight:700;border-bottom-color:#0e7c86}',
+    '.qmt-form-tab.on .dot{background:#22b8a6}',
+    '.qmt-form-body{flex:1;overflow:auto;padding:12px 16px 18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;align-content:start}',
+    '.qmt-field{min-width:0}',
+    '.qmt-field label{display:block;font-size:11.5px;color:#7a8a93;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.qmt-field input,.qmt-field textarea{width:100%;box-sizing:border-box;border:1px solid #dbe5ea;border-radius:7px;background:#fbfdfe;color:#264a5a;padding:8px 9px;font-size:12.5px;font-family:inherit;line-height:1.45}',
+    '.qmt-field input:focus,.qmt-field textarea:focus{outline:2px solid #b9dde0;outline-offset:0;border-color:#7fb6bc;background:#fff}',
+    '.qmt-field textarea{resize:vertical;min-height:58px}',
+    '.qmt-form-empty{grid-column:1/-1;color:#7a8a93;font-size:12.5px;line-height:1.7;padding:14px 0}',
+    '.qmt-form-btn{position:fixed;right:18px;bottom:18px;z-index:2147483100;border:0;border-radius:999px;background:#0e7c86;color:#fff;padding:11px 17px;font-size:13px;font-family:' + FONT + ';cursor:pointer;box-shadow:0 8px 22px rgba(14,124,134,.32)}',
+    '.qmt-form-btn:hover{background:#0a6b73}',
+    '@media (max-width:700px){.qmt-form-btn{right:12px;bottom:12px;padding:10px 14px;font-size:12.5px}}',
+    'body.qmt-form-open{padding-bottom:330px!important}',
+    '@media (max-width:700px){.qmt-form{height:56vh}.qmt-form-body{grid-template-columns:1fr;padding:10px 12px 14px}body.qmt-form-open{padding-bottom:58vh!important}}',
     '@media print{.qmt-rail{display:none!important}}',
     /* ===== 面板：白底 + 蓝色系 ===== */
     '.qmt-panel{position:fixed;z-index:2147483100;background:#fff;color:#264A5A;border:1px solid #d7e3ea;border-radius:10px;box-shadow:0 6px 20px rgba(38,74,90,.18);padding:12px 14px;font-family:' + FONT + ';font-size:13px;min-width:220px;max-width:min(78vw,340px)}',
@@ -500,6 +527,164 @@
     save(); checkOverflow();
   }
 
+  /* ================= 模块表单（底部面板） ================= */
+  function formSections() {
+    var secs = page.querySelectorAll('section.sec');
+    if (secs.length) {
+      return Array.prototype.map.call(secs, function (sec) {
+        var bar = sec.querySelector('.sec-title .bar');
+        var body = sec.querySelector('.sec-body') || sec;
+        var seen = [], list = [];
+        body.querySelectorAll('.info-grid > div, .entry-head > span, .li, p').forEach(function (el) {
+          if (seen.indexOf(el) >= 0) return;
+          seen.push(el); list.push(el);
+        });
+        return { label: bar ? bar.textContent.trim() : '版块', sec: sec, titleEl: bar || sec, ps: list };
+      }).filter(function (s) { return s.ps.length; });
+    }
+    var groups = outlineGroups();
+    if (!groups.length) return [];
+    var all = Array.prototype.slice.call(page.querySelectorAll('p')).filter(function (p) {
+      return !p.closest('.qmt-photo') && (p.innerText || '').trim();
+    });
+    var items = groups.map(function (g) {
+      var el = g.els[0], r = el.getBoundingClientRect();
+      return { label: g.label, titleEl: el, top: r.top + window.scrollY, ps: [] };
+    }).sort(function (a, b) { return a.top - b.top; });
+    items.forEach(function (s, i) {
+      var end = i + 1 < items.length ? items[i + 1].top : Infinity;
+      all.forEach(function (p) {
+        if (p === s.titleEl || s.titleEl.contains(p)) return;
+        var r = p.getBoundingClientRect();
+        var top = r.top + window.scrollY;
+        if (top >= s.top + 4 && top < end) s.ps.push(p);
+      });
+      s.ps.sort(function (a, b) {
+        var ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+        return Math.abs(ra.top - rb.top) > 4 ? ra.top - rb.top : ra.left - rb.left;
+      });
+    });
+    return items.filter(function (s) { return s.ps.length; });
+  }
+  var formEl = null, formOpen = false, formTimer = null;
+  function formSchedule() {
+    if (formTimer) clearTimeout(formTimer);
+    formTimer = setTimeout(function () { save(); checkOverflow(); }, 250);
+  }
+  function escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function makeFormField(section, p, idx) {
+    var wrap = document.createElement('div');
+    wrap.className = 'qmt-field';
+    var lab = document.createElement('label');
+    var input, txt = (p.innerText || '').trim();
+    var m = txt.match(/^([^：:]{1,12})[：:]\s*([\s\S]*)$/);
+    var isBasic = section.label === '基本信息';
+    var lblEl = p.querySelector && p.querySelector('.lbl');
+    if (lblEl) {
+      var lname = (lblEl.textContent || '').trim();
+      var lval = txt.replace(lname, '').replace(/^[：:]\s*/, '');
+      lab.textContent = lname;
+      input = document.createElement('textarea');
+      input.rows = 2; input.value = lval;
+      input.addEventListener('input', function () {
+        p.innerHTML = '<span class="lbl">' + escHtml(lname) + '</span>：' + escHtml(input.value);
+        formSchedule();
+      });
+    } else if (isBasic && m) {
+      lab.textContent = m[1].replace(/\s+/g, ' ').trim();
+      input = document.createElement('input');
+      input.type = 'text';
+      input.value = m[2].trim();
+      input.addEventListener('input', function () {
+        p.textContent = m[1] + '：' + input.value;
+        formSchedule();
+      });
+    } else if (p.matches && p.matches('.entry-head > span')) {
+      lab.textContent = p.classList.contains('date') ? '时间' : (p.classList.contains('role') ? '职位/专业' : '单位/学校');
+      input = document.createElement('input');
+      input.type = 'text'; input.value = txt;
+      input.addEventListener('input', function () { p.textContent = input.value; formSchedule(); });
+    } else {
+      lab.textContent = section.label + ' · 第 ' + (idx + 1) + ' 条';
+      input = document.createElement('textarea');
+      input.rows = 2;
+      input.value = txt;
+      input.addEventListener('input', function () {
+        p.textContent = input.value;
+        formSchedule();
+      });
+    }
+    wrap.appendChild(lab);
+    wrap.appendChild(input);
+    return wrap;
+  }
+  function renderFormBody(section) {
+    var body = formEl.querySelector('.qmt-form-body');
+    body.innerHTML = '';
+    if (!section || !section.ps.length) {
+      body.innerHTML = '<div class="qmt-form-empty">这套模板没有识别到可编辑的字段；可以直接点纸面修改。</div>';
+      return;
+    }
+    if (section.label === '基本信息' && page.querySelector('img.qmt-photo')) {
+      var ph = document.createElement('div');
+      ph.className = 'qmt-form-photo';
+      var pb = document.createElement('button');
+      pb.type = 'button'; pb.textContent = '替换证件照';
+      pb.addEventListener('click', function () { pickPhoto(); });
+      var ps = document.createElement('span');
+      ps.textContent = 'JPG / PNG，自动压缩，只存在本机';
+      ph.appendChild(pb); ph.appendChild(ps); body.appendChild(ph);
+    }
+    Array.prototype.forEach.call(section.ps, function (p, i) {
+      body.appendChild(makeFormField(section, p, i));
+    });
+  }
+  function buildForm() {
+    if (formEl) return formEl;
+    var sections = formSections();
+    formEl = document.createElement('section');
+    formEl.className = 'qmt-form';
+    formEl.setAttribute('aria-label', '模块表单编辑');
+    var head = document.createElement('div');
+    head.className = 'qmt-form-head';
+    head.innerHTML = '<b>表单编辑</b><span>改动会同步到纸面</span>';
+    var close = document.createElement('button');
+    close.type = 'button'; close.textContent = '收起';
+    close.addEventListener('click', function () { toggleForm(false); });
+    head.appendChild(close);
+    var tabs = document.createElement('div');
+    tabs.className = 'qmt-form-tabs';
+    var body = document.createElement('div');
+    body.className = 'qmt-form-body';
+    formEl.appendChild(head); formEl.appendChild(tabs); formEl.appendChild(body);
+    sections.forEach(function (s, i) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'qmt-form-tab' + (i === 0 ? ' on' : '');
+      var off = s.sec ? s.sec.classList.contains('qmt-hide') : false;
+      b.innerHTML = '<span class="dot' + (off ? ' off' : '') + '"></span>' + s.label;
+      b.addEventListener('click', function () {
+        Array.prototype.forEach.call(tabs.children, function (x) { x.classList.remove('on'); });
+        b.classList.add('on');
+        renderFormBody(s);
+      });
+      tabs.appendChild(b);
+    });
+    renderFormBody(sections[0]);
+    document.body.appendChild(formEl);
+    return formEl;
+  }
+  function toggleForm(force) {
+    var want = typeof force === 'boolean' ? force : !formOpen;
+    if (want) buildForm();
+    formOpen = want;
+    if (!formEl) return;
+    formEl.classList.toggle('open', want);
+    document.body.classList.toggle('qmt-form-open', want);
+    if (want && formEl.scrollIntoView) formEl.scrollIntoView({ block: 'end' });
+  }
+
   /* ================= 下拉面板 ================= */
   var openPanel = null, openBtn = null;
   function closePanel() { if (openPanel) { openPanel.remove(); openPanel = null; openBtn = null; } }
@@ -771,6 +956,16 @@
     window.addEventListener('resize', syncToolbarSpace);
     syncToolbarSpace();
     buildRail();
+    var fbtn = document.createElement('button');
+    fbtn.type = 'button';
+    fbtn.className = 'qmt-form-btn';
+    fbtn.textContent = '表单编辑';
+    fbtn.title = '按模块填写，内容会同步到纸面';
+    fbtn.addEventListener('click', function () { toggleForm(); });
+    document.body.appendChild(fbtn);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && formOpen) toggleForm(false);
+    });
   }
 
   /* ---- 右侧常驻「简历结构」栏（大屏） ---- */
