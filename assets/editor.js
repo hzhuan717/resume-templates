@@ -69,7 +69,7 @@
     '.qmt-rail-eye.off{color:#b45309}',
     '.qmt-rail-foot{border-top:1px solid #eef2f4;margin-top:9px;padding-top:8px;color:#7a8a93;font-size:11px;line-height:1.5}',
     '@media (max-width:1360px){.qmt-rail{display:none}}',
-    '.qmt-form{position:fixed;left:0;right:0;bottom:0;height:310px;background:#fff;z-index:2147483200;border-top:1px solid #dfe8ed;box-shadow:0 -10px 34px rgba(16,40,52,.16);display:flex;flex-direction:column;font-family:' + FONT + ';color:#264a5a;transform:translateY(102%);transition:transform .22s ease}',
+    '.qmt-form{position:fixed;left:0;right:0;bottom:0;width:100%;max-width:100vw;min-width:0;box-sizing:border-box;overflow:hidden;height:310px;background:#fff;z-index:2147483200;border-top:1px solid #dfe8ed;box-shadow:0 -10px 34px rgba(16,40,52,.16);display:flex;flex-direction:column;font-family:' + FONT + ';color:#264a5a;transform:translateY(102%);transition:transform .22s ease}',
     '.qmt-form.open{transform:none}',
     '.qmt-form-head{height:42px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid #eef2f4;flex:0 0 auto}',
     '.qmt-form-head b{font-size:13.5px}',
@@ -96,7 +96,7 @@
     '@media (max-width:700px){.qmt-form-btn{right:12px;bottom:12px;padding:10px 14px;font-size:12.5px}}',
     'body.qmt-form-open{padding-bottom:330px!important}',
     'body.qmt-form-open .qmt-form-btn{display:none!important}',
-    '@media (max-width:700px){.qmt-form{height:56vh}.qmt-form-body{grid-template-columns:1fr;padding:10px 12px 14px}body.qmt-form-open{padding-bottom:58vh!important}}',
+    '@media (max-width:700px){.qmt-toolbar{left:0;transform:none;width:100%;max-width:100%;box-sizing:border-box}.qmt-form{height:56vh;width:100vw;max-width:100vw}.qmt-form-head,.qmt-form-tabs,.qmt-form-body{min-width:0;max-width:100%}.qmt-form-body{grid-template-columns:1fr;padding:10px 12px 14px}body.qmt-form-open{padding-bottom:58vh!important}}',
     '@media print{.qmt-rail{display:none!important}}',
     /* ===== 面板：白底 + 蓝色系 ===== */
     '.qmt-panel{position:fixed;z-index:2147483100;background:#fff;color:#264A5A;border:1px solid #d7e3ea;border-radius:10px;box-shadow:0 6px 20px rgba(38,74,90,.18);padding:12px 14px;font-family:' + FONT + ';font-size:13px;min-width:220px;max-width:min(78vw,340px)}',
@@ -129,7 +129,7 @@
     /* ===== 打印基线：所有模板统一 A4，@page 负责每页页边距，.page 只负责内容 ===== */
     '@page{size:A4;margin:10mm}',
     '@media print{',
-    '  html,body{background:#fff!important;margin:0!important;padding:0!important}',
+    '  html,body,body.qmt-form-open{background:#fff!important;margin:0!important;padding:0!important}',
     '  .qmt-toolbar,.qmt-panel,.qmt-badge,.qmt-form,.qmt-form-btn{display:none!important}',
     '  .page{width:190mm!important;min-height:0!important;margin:0!important;padding:0!important;',
     '        box-shadow:none!important;border-radius:0!important;transform:none!important;overflow:visible!important}',
@@ -537,7 +537,39 @@
   }
 
   /* ================= 模块表单（底部面板） ================= */
+  var FORM_NAMES = ['基本信息', '个人资料', '个人信息', '联系方式', '求职意向', '教育背景', '工作经历',
+    '实习经历', '实习经验', '项目经历', '项目经验', '校园经历', '校内实践', '实践经历', '技能特长',
+    '技能证书', '荣誉证书', '获奖经历', '自我评价', '兴趣爱好', '主修课程', '个人荣誉'];
+  function pdfFormSections() {
+    var spans = Array.prototype.slice.call(page.querySelectorAll('.qmt-t'));
+    var heads = [], used = {};
+    spans.forEach(function (el, i) {
+      var t = (el.textContent || '').replace(/[\s\u3000]/g, '');
+      for (var k = 0; k < FORM_NAMES.length; k++) {
+        var n = FORM_NAMES[k];
+        if (!used[n] && (t === n || t.indexOf(n) === 0)) {
+          used[n] = 1; heads.push({ i: i, label: n, el: el }); break;
+        }
+      }
+    });
+    if (!heads.length) {
+      var loose = spans.filter(function (el) { return (el.textContent || '').trim(); });
+      return loose.length ? [{ label: '全部内容', titleEl: null, ps: loose.slice(0, 80) }] : [];
+    }
+    var out = [];
+    if (heads[0].i > 0) {
+      var pre = spans.slice(0, heads[0].i).filter(function (el) { return (el.textContent || '').trim(); });
+      if (pre.length) out.push({ label: '基本信息', titleEl: null, ps: pre });
+    }
+    heads.forEach(function (h, j) {
+      var end = j + 1 < heads.length ? heads[j + 1].i : spans.length;
+      var ps = spans.slice(h.i + 1, end).filter(function (el) { return (el.textContent || '').trim(); });
+      if (ps.length) out.push({ label: h.label, titleEl: h.el, ps: ps });
+    });
+    return out;
+  }
   function formSections() {
+    if (isPdfPage()) return pdfFormSections();
     var secs = page.querySelectorAll('section.sec');
     if (secs.length) {
       return Array.prototype.map.call(secs, function (sec) {
@@ -972,6 +1004,11 @@
     });
     document.body.appendChild(tb);
     function syncToolbarSpace() {
+      var vw = Math.round(window.visualViewport ? visualViewport.width : window.innerWidth);
+      if (vw <= 700) {
+        tb.style.left = '0'; tb.style.transform = 'none';
+        tb.style.width = vw + 'px'; tb.style.maxWidth = vw + 'px'; tb.style.boxSizing = 'border-box';
+      }
       document.documentElement.style.setProperty('--qmt-tb', (tb.offsetHeight + 10) + 'px');
     }
     window.addEventListener('resize', syncToolbarSpace);
@@ -1062,6 +1099,18 @@
   }
 
   /* ---- 打印前说明：把浏览器打印设置一次说清，避免边距/背景漏勾 ---- */
+  function ensurePdfPrintStyle() {
+    if (!isPdfPage() || document.getElementById('qmt-pdf-print')) return;
+    var n = (window.QMT_TPL && +window.QMT_TPL.pages) || 1;
+    var st = document.createElement('style');
+    st.id = 'qmt-pdf-print';
+    st.textContent = '@media print{@page{size:A4;margin:0}' +
+      'html,body,body.qmt-form-open{margin:0!important;padding:0!important;background:#fff!important}' +
+      '.qmt-pdf{width:210mm!important;height:' + (297 * n - 0.4) + 'mm!important;min-height:0!important;margin:0!important;padding:0!important;transform:none!important;box-shadow:none!important;border-radius:0!important;overflow:hidden!important}' +
+      '.qmt-pdf .qmt-bg{width:210mm!important;height:' + (297 * n - 0.4) + 'mm!important;object-fit:fill!important}' +
+      '.qmt-pdf .qmt-t{print-color-adjust:exact;-webkit-print-color-adjust:exact}}';
+    document.head.appendChild(st);
+  }
   function openPrintGuide() {
     var mask = document.createElement('div');
     mask.className = 'qmt-mask';
@@ -1088,18 +1137,7 @@
     mask.querySelector('[data-close]').addEventListener('click', close);
     mask.querySelector('[data-go]').addEventListener('click', function () {
       close();
-      if (isPdfPage()) {
-        var n = (window.QMT_TPL && +window.QMT_TPL.pages) || 1;
-        if (!document.getElementById('qmt-pdf-print')) {
-          var st = document.createElement('style');
-          st.id = 'qmt-pdf-print';
-          st.textContent = '@media print{@page{size:A4;margin:0}' +
-            '.qmt-pdf{width:210mm!important;height:' + (297 * n) + 'mm!important;min-height:0!important;margin:0!important;padding:0!important;transform:none!important;box-shadow:none!important;border-radius:0!important;overflow:visible!important}' +
-            '.qmt-pdf .qmt-bg{width:210mm!important;height:' + (297 * n) + 'mm!important;object-fit:fill!important}' +
-            '.qmt-pdf .qmt-t{print-color-adjust:exact;-webkit-print-color-adjust:exact}}';
-          document.head.appendChild(st);
-        }
-      }
+      ensurePdfPrintStyle();
       setTimeout(function () { window.print(); }, 60);
     });
     mask.addEventListener('click', function (e) { if (e.target === mask) close(); });
@@ -1116,12 +1154,29 @@
     a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   }
+  /* 导出前把背景图/照片转成 data URL：下载后的 HTML/JSON/Word 不再依赖 assets 目录 */
+  function inlinePageImages(clone) {
+    var liveImgs = page.querySelectorAll('img');
+    var cloneImgs = clone.querySelectorAll('img');
+    for (var i = 0; i < cloneImgs.length && i < liveImgs.length; i++) {
+      var src = liveImgs[i];
+      if (!src || !src.naturalWidth) continue;
+      try {
+        var c = document.createElement('canvas');
+        c.width = src.naturalWidth; c.height = src.naturalHeight;
+        c.getContext('2d').drawImage(src, 0, 0);
+        cloneImgs[i].src = c.toDataURL('image/jpeg', 0.9);
+      } catch (e) {}
+    }
+  }
   function exportHTML() {
     var doc = document.documentElement.cloneNode(true);
     var t = doc.querySelector('.qmt-toolbar');
     if (t) t.remove();
     var p = doc.querySelector('.qmt-panel');
     if (p) p.remove();
+    var cp = doc.querySelector('#resume');
+    if (cp) inlinePageImages(cp);
     download(new Blob(['<!DOCTYPE html>\n' + doc.outerHTML], { type: 'text/html;charset=utf-8' }), (TPL.name || '简历') + '.html');
   }
   function exportWordDoc() {
@@ -1129,7 +1184,9 @@
        不是严格 OOXML .docx，但 Word/WPS 可直接打开，适合先交付可编辑文档。 */
     var style = document.querySelector('style');
     var cssText = style ? style.textContent : '';
-    var body = page.outerHTML.replace(/\scontenteditable="(true|false)"/g, '');
+    var clone = page.cloneNode(true);
+    inlinePageImages(clone);
+    var body = clone.outerHTML.replace(/\scontenteditable="(true|false)"/g, '');
     var html = '<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
       'xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
       '<head><meta charset="utf-8"><title>' + (TPL.name || '简历') + '</title>' +
@@ -1275,9 +1332,11 @@
     p.appendChild(b1); p.appendChild(b2);
   }
   function backupJSON() {
+    var clone = page.cloneNode(true);
+    inlinePageImages(clone);
     var data = {
       app: 'qmt-resume', id: TPL.id, name: TPL.name,
-      html: page.innerHTML, photo: null, theme: null, font: null, savedAt: new Date().toISOString()
+      html: clone.innerHTML, photo: null, theme: null, font: null, savedAt: new Date().toISOString()
     };
     try { data.photo = localStorage.getItem(PHOTO_KEY); } catch (e) {}
     try { data.theme = localStorage.getItem(THEME_KEY); } catch (e) {}
@@ -1437,6 +1496,11 @@
       page.style.transform = '';
       page.style.marginBottom = '';
     }
+    /* 手机端：左对齐 + 固定左边距，避免移动 Safari/Chrome 把布局视口撑到 580px 后纸张被居中到屏幕外 */
+    if ((window.visualViewport ? visualViewport.width : window.innerWidth) <= 700) {
+      page.style.transformOrigin = 'top left';
+      page.style.margin = '0 0 0 12px';
+    }
   }
   window.addEventListener('resize', fit);
   window.addEventListener('load', fit);
@@ -1445,6 +1509,7 @@
   fixHeaderLayout();
   padSectionStarts();
   fit();
+  ensurePdfPrintStyle();
   checkOverflow();
   if (!THUMB) snap();
 
