@@ -572,6 +572,23 @@
       navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, fallback);
     } else fallback();
   }
+  function buildSwitchPanel(p) {
+    p.innerHTML = '<div class="qmt-panel-title">换一套模板</div>' +
+      '<div class="qmt-empty" style="margin-bottom:8px">每套模板是独立排版，内容不能自动搬过去。先备份当前简历，再去模板库挑一套，在新模板里用「导入JSON」恢复文字。</div>';
+    var b1 = document.createElement('button');
+    b1.type = 'button'; b1.className = 'qmt-mini wide'; b1.style.marginBottom = '6px';
+    b1.textContent = '备份并去模板库 →';
+    b1.onclick = function () {
+      closePanel();
+      backupJSON();
+      setTimeout(function () { location.href = '../index.html#library'; }, 600);
+    };
+    var b2 = document.createElement('button');
+    b2.type = 'button'; b2.className = 'qmt-mini wide';
+    b2.textContent = '只去模板库（不备份）';
+    b2.onclick = function () { closePanel(); location.href = '../index.html#library'; };
+    p.appendChild(b1); p.appendChild(b2);
+  }
   function buildSharePanel(p) {
     p.innerHTML = '<div class="qmt-panel-title">分享 / 复制 <span style="font-weight:400;color:#7a8a93;font-size:11.5px">不上传云端</span></div>' +
       '<div class="qmt-empty" style="margin-bottom:8px">链接只指向模板；简历内容仍只在本机。要发给别人，请用「下载HTML」或「下载Word」。</div>';
@@ -737,6 +754,7 @@
       ['打印 / 导出PDF', openPrintGuide],
       ['下载HTML', exportHTML],
       ['下载Word', function () { togglePanel(this, buildWordPanel); }],
+      ['换模板', function () { togglePanel(this, buildSwitchPanel); }],
       ['分享', function () { togglePanel(shareBtn, buildSharePanel); }],
       ['备份JSON', backupJSON],
       ['导入JSON', importJSON],
