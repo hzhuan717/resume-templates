@@ -736,7 +736,7 @@
       ['替换照片', pickPhoto],
       ['打印 / 导出PDF', openPrintGuide],
       ['下载HTML', exportHTML],
-      ['下载Word', exportWord],
+      ['下载Word', function () { togglePanel(this, buildWordPanel); }],
       ['分享', function () { togglePanel(shareBtn, buildSharePanel); }],
       ['备份JSON', backupJSON],
       ['导入JSON', importJSON],
@@ -872,7 +872,7 @@
     if (p) p.remove();
     download(new Blob(['<!DOCTYPE html>\n' + doc.outerHTML], { type: 'text/html;charset=utf-8' }), (TPL.name || '简历') + '.html');
   }
-  function exportWord() {
+  function exportWordDoc() {
     /* Word 兼容的 .doc：保留模板样式与内联图片，去掉工具条/脚本。
        不是严格 OOXML .docx，但 Word/WPS 可直接打开，适合先交付可编辑文档。 */
     var style = document.querySelector('style');
@@ -887,6 +887,140 @@
       'img{max-width:100%}</style></head><body>' + body + '</body></html>';
     download(new Blob(['\ufeff' + html], { type: 'application/msword;charset=utf-8' }), (TPL.name || '简历') + '.doc');
     toast('已下载 Word 兼容文档（.doc，可用 Word/WPS 打开）');
+  }
+
+  /* ===== 真·DOCX（无依赖，纯文字，便于二次编辑） ===== */
+  function xmlEsc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+  }
+  var CRC_TABLE = (function () {
+    var t = new Uint32Array(256);
+    for (var n = 0; n < 256; n++) {
+      var c = n;
+      for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+  function crc32(u8) {
+    var c = 0xFFFFFFFF;
+    for (var i = 0; i < u8.length; i++) c = CRC_TABLE[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+  function zipStore(files) {
+    /* files: [{name, data:Uint8Array}]，store（不压缩）即可被 Word 接受 */
+    var enc = new TextEncoder(), parts = [], central = [], offset = 0;
+    var now = new Date();
+    var time = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF;
+    var date = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
+    function u16(v) { return new Uint8Array([v & 255, (v >>> 8) & 255]); }
+    function u32(v) { return new Uint8Array([v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255]); }
+    function concat() {
+      var total = 0, i;
+      for (i = 0; i < arguments.length; i++) total += arguments[i].length;
+      var out = new Uint8Array(total), p = 0;
+      for (i = 0; i < arguments.length; i++) { out.set(arguments[i], p); p += arguments[i].length; }
+      return out;
+    }
+    files.forEach(function (f) {
+      var name = enc.encode(f.name), data = f.data, crc = crc32(data);
+      var local = concat(u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(time), u16(date),
+        u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0), name, data);
+      parts.push(local);
+      central.push(concat(u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(time), u16(date),
+        u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0), u16(0),
+        u16(0), u16(0), u32(0), u32(offset), name));
+      offset += local.length;
+    });
+    var cd = concat.apply(null, central), end = concat(u32(0x06054b50), u16(0), u16(0),
+      u16(files.length), u16(files.length), u32(cd.length), u32(offset), u16(0));
+    return concat.apply(null, parts.concat([cd, end]));
+  }
+  function collectWordLines() {
+    var out = [], seen = {}, items = [];
+    var els = page.querySelectorAll('h1,h2,h3,p');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (el.closest('.qmt-photo')) continue;
+      var txt = (el.innerText || '').replace(/\u00a0/g, ' ').trim();
+      if (!txt) continue;
+      var r = el.getBoundingClientRect();
+      if (!r.width || !r.height) continue;
+      items.push({ el: el, txt: txt, top: r.top + window.scrollY, left: r.left + window.scrollX });
+    }
+    /* Word 表格的 DOM 顺序常是“按列”，这里按视觉位置重排成阅读顺序 */
+    items.sort(function (a, b) {
+      var ta = Math.round(a.top / 8), tb = Math.round(b.top / 8);
+      return ta === tb ? a.left - b.left : ta - tb;
+    });
+    for (var j = 0; j < items.length; j++) {
+      var el = items[j].el, txt = items[j].txt;
+      if (seen[txt]) continue;
+      seen[txt] = 1;
+      var cs = getComputedStyle(el);
+      var size = parseFloat(cs.fontSize) || 12;
+      var bold = parseInt(cs.fontWeight, 10) >= 600 || el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3';
+      var SECTION_RE = /^(个人简历|基本信息|求职意向|报考信息|教育背景|工作经历|实习经历|项目经验|校园经历|技能特长|技能证书|荣誉证书|自我评价|兴趣爱好)$/;
+      var head = txt.replace(/\s+/g, '');
+      if (SECTION_RE.test(head)) {
+        bold = true;
+        size = head === '个人简历' ? 24 : 17;
+      }
+      var color = (cs.color || '').match(/\d+/g);
+      out.push({
+        text: txt.split(/\n+/).filter(Boolean).join(' / '),
+        size: Math.max(9, Math.min(26, size * 0.75)),
+        bold: bold,
+        color: color && color.length >= 3 ? ('#' + color.slice(0, 3).map(function (n) { return ('0' + parseInt(n, 10).toString(16)).slice(-2); }).join('')) : null
+      });
+    }
+    return out;
+  }
+  function exportDocx() {
+    var lines = collectWordLines();
+    if (!lines.length) { toast('没有可导出的文字'); return; }
+    var body = lines.map(function (l) {
+      var pr = '<w:pPr><w:spacing w:after="80" w:line="300" w:lineRule="auto"/></w:pPr>';
+      var rpr = '<w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="宋体"/>' +
+        '<w:sz w:val="' + Math.round(l.size * 2) + '"/>' + (l.bold ? '<w:b/>' : '') +
+        (l.color ? '<w:color w:val="' + l.color.replace('#', '').toUpperCase() + '"/>' : '') + '</w:rPr>';
+      return '<w:p>' + pr + '<w:r>' + rpr + '<w:t xml:space="preserve">' + xmlEsc(l.text) + '</w:t></w:r></w:p>';
+    }).join('');
+    var doc = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' + body +
+      '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>' +
+      '<w:pgMar w:top="567" w:right="567" w:bottom="567" w:left="567" w:header="284" w:footer="284" w:gutter="0"/>' +
+      '</w:sectPr></w:body></w:document>';
+    var files = [
+      { name: '[Content_Types].xml', data: new TextEncoder().encode('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+        '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+        '<Default Extension="xml" ContentType="application/xml"/>' +
+        '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
+        '</Types>') },
+      { name: '_rels/.rels', data: new TextEncoder().encode('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+        '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
+        '</Relationships>') },
+      { name: 'word/document.xml', data: new TextEncoder().encode(doc) }
+    ];
+    download(new Blob([zipStore(files)], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }),
+      (TPL.name || '简历') + '.docx');
+    toast('已下载 DOCX（纯文字版，保留文字层级；版式请用 .doc 或 PDF）');
+  }
+  function buildWordPanel(p) {
+    p.innerHTML = '<div class="qmt-panel-title">下载 Word <span style="font-weight:400;color:#7a8a93;font-size:11.5px">两种格式</span></div>' +
+      '<div class="qmt-empty" style="margin-bottom:8px">要保留配色和分栏，选 .doc；要在 Word 里重新排版，选 .docx（纯文字）。</div>';
+    var b1 = document.createElement('button');
+    b1.type = 'button'; b1.className = 'qmt-mini wide'; b1.style.marginBottom = '6px';
+    b1.textContent = '版式版 .doc（推荐）';
+    b1.onclick = function () { closePanel(); exportWordDoc(); };
+    var b2 = document.createElement('button');
+    b2.type = 'button'; b2.className = 'qmt-mini wide';
+    b2.textContent = '纯文字 .docx（可重排）';
+    b2.onclick = function () { closePanel(); exportDocx(); };
+    p.appendChild(b1); p.appendChild(b2);
   }
   function backupJSON() {
     var data = {
