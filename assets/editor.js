@@ -24,6 +24,11 @@
         if (!m) { m = document.createElement('meta'); m.setAttribute('property', pair[0]); document.head.appendChild(m); }
         m.setAttribute('content', pair[1]);
       });
+      /* 模板页补 favicon：144 个编辑页此前没有图标，标签页显示空白且每开一页都会 404 一次 */
+      var fav = document.querySelector('link[rel="icon"]');
+      if (!fav) { fav = document.createElement('link'); fav.setAttribute('rel', 'icon'); document.head.appendChild(fav); }
+      fav.setAttribute('type', 'image/svg+xml');
+      fav.setAttribute('href', '../assets/favicon.svg');
     } catch (e) {}
   }
   if (THUMB) {
@@ -51,6 +56,9 @@
     '.qmt-toolbar button:hover,.qmt-toolbar a.qmt-link:hover{background:#fff;color:#264A5A}',
     '.qmt-badge{display:none;background:#c0392b;color:#fff;border-radius:10px;padding:2px 10px;font-size:12px;flex:0 0 auto}',
     '.qmt-toolbar .qmt-sep{width:1px;height:15px;background:rgba(255,255,255,.28);flex:0 0 auto}',
+    /* 危险操作：与常规按钮拉开视觉差距，避免误点 */
+    '.qmt-toolbar button.qmt-danger{border-color:rgba(255,152,142,.75);color:#ffdcd4}',
+    '.qmt-toolbar button.qmt-danger:hover{background:#c0392b;border-color:#c0392b;color:#fff}',
     /* 窄屏：先压缩间距，仍不够则换行，并让提示语独占一行（保证可读 + 按钮不被裁） */
     '@media (max-width:1180px){.qmt-toolbar{gap:6px;padding:7px 10px}.qmt-toolbar button,.qmt-toolbar a.qmt-link{padding:4px 9px;font-size:12px}}',
     '@media (max-width:1020px){.qmt-toolbar{flex-wrap:wrap;justify-content:center;overflow:visible}.qmt-toolbar .qmt-hint{order:99;flex:1 0 100%;text-align:center;min-width:100%}}',
@@ -82,6 +90,17 @@
     '.qmt-form-photo{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:2px 0 6px}',
     '.qmt-form-photo button{border:0;border-radius:7px;background:#e6f4f5;color:#0e7c86;font-size:12px;padding:7px 11px;cursor:pointer}',
     '.qmt-form-photo span{font-size:11.5px;color:#7a8a93}',
+    /* 条目卡：添加/删除一段经历 */
+    '.qmt-entry-card{grid-column:1/-1;border:1px solid #e1e9ee;border-radius:10px;padding:10px 12px 12px;background:#fff;min-width:0}',
+    '.qmt-entry-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:12px;color:#7a8a93}',
+    '.qmt-entry-del{border:1px solid #f0c7bf;background:#fff;color:#c0392b;border-radius:6px;font-size:11.5px;padding:3px 10px;cursor:pointer}',
+    '.qmt-entry-del:hover{background:#c0392b;color:#fff;border-color:#c0392b}',
+    '.qmt-entry-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;min-width:0}',
+    '.qmt-entry-add{grid-column:1/-1;border:1px dashed #9fc4cb;background:#f4fafa;color:#0e7c86;border-radius:10px;padding:10px;font-size:12.5px;cursor:pointer}',
+    '.qmt-entry-add:hover{background:#e6f4f5}',
+    /* 宽字段（时间/单位/职位三段行）占满整行 */
+    '.qmt-field-wide{grid-column:1/-1}',
+    '.qmt-field-row{display:grid;grid-template-columns:1fr 1.5fr 1.3fr;gap:10px;min-width:0}',
     '.qmt-form-tab.on{color:#0e7c86;font-weight:700;border-bottom-color:#0e7c86}',
     '.qmt-form-tab.on .dot{background:#22b8a6}',
     '.qmt-form-body{flex:1;overflow:auto;padding:12px 16px 18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;align-content:start}',
@@ -96,7 +115,7 @@
     '@media (max-width:700px){.qmt-form-btn{right:12px;bottom:12px;padding:10px 14px;font-size:12.5px}}',
     'body.qmt-form-open{padding-bottom:330px!important}',
     'body.qmt-form-open .qmt-form-btn{display:none!important}',
-    '@media (max-width:700px){.qmt-toolbar{left:0;transform:none;width:100%;max-width:100%;box-sizing:border-box}.qmt-form{height:56vh;width:100vw;max-width:100vw}.qmt-form-head,.qmt-form-tabs,.qmt-form-body{min-width:0;max-width:100%}.qmt-form-body{grid-template-columns:1fr;padding:10px 12px 14px}body.qmt-form-open{padding-bottom:58vh!important}}',
+    '@media (max-width:700px){.qmt-toolbar{left:0;transform:none;width:100%;max-width:100%;box-sizing:border-box}.qmt-form{height:56vh;width:100vw;max-width:100vw}.qmt-form-head,.qmt-form-tabs,.qmt-form-body{min-width:0;max-width:100%}.qmt-form-body{grid-template-columns:1fr;padding:10px 12px 14px}.qmt-field-row{grid-template-columns:1fr}.qmt-entry-fields{grid-template-columns:1fr}body.qmt-form-open{padding-bottom:58vh!important}}',
     '@media print{.qmt-rail{display:none!important}}',
     /* ===== 面板：白底 + 蓝色系 ===== */
     '.qmt-panel{position:fixed;z-index:2147483100;background:#fff;color:#264A5A;border:1px solid #d7e3ea;border-radius:10px;box-shadow:0 6px 20px rgba(38,74,90,.18);padding:12px 14px;font-family:' + FONT + ';font-size:13px;min-width:220px;max-width:min(78vw,340px)}',
@@ -182,7 +201,10 @@
     Array.prototype.forEach.call(photoImgs(), function (im) {
       im.style.transformOrigin = '50% 50%';
       im.style.transform = pct > 100 ? 'scale(' + (pct / 100) + ')' : '';
-      if (im.parentElement) im.parentElement.style.overflow = 'hidden';
+      /* 缩放裁切由 .page（position:relative + overflow:hidden，照片的包含块）完成；
+         不要再给照片父级加 overflow:hidden —— classic-teal 里父级是整个 section，
+         会把负 margin 伸出的章节丝带头裁掉（「基本信息」变「本信息」），而且对
+         绝对定位的照片根本没有裁切作用 */
     });
     return pct;
   }
@@ -316,9 +338,10 @@
 
   /* ================= 配色（蓝色系，按计算色重着色，适配全部模板） ================= */
   var PALETTE = [
-    ['#264A5A', '原版 · 灰蓝'], ['#2C5F8A', '靛蓝'], ['#1F3B57', '深藏青'],
-    ['#3A7CA5', '天青'], ['#4A6FA5', '钢蓝'], ['#2E6E9E', '经典蓝'],
-    ['#33768F', '青蓝'], ['#5A7184', '石板蓝灰']
+    ['#264A5A', '灰蓝 · 原版'], ['#2C5F8A', '靛蓝'], ['#1F3B57', '深藏青'], ['#3A7CA5', '天青'],
+    ['#4A6FA5', '钢蓝'], ['#2E6E9E', '经典蓝'], ['#33768F', '青蓝'], ['#5A7184', '石板蓝灰'],
+    ['#2A9D8F', '青碧'], ['#2E7D5B', '墨绿'], ['#6B5CA5', '黛紫'], ['#7A4E9E', '紫罗兰'],
+    ['#9E3B4E', '酒红'], ['#C05A3C', '砖红'], ['#C77828', '秋橙'], ['#8A6D4B', '咖啡棕']
   ];
   var CPROPS = ['color', 'backgroundColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor'];
 
@@ -627,6 +650,43 @@
   function escHtml(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
+  /* 短值用单行 input，长文才用 textarea：不再让「胡小豆」三个字占三行高 */
+  function mkValInput(value, oninput) {
+    var short = value.indexOf('\n') < 0 && value.trim().length <= 30;
+    var input = document.createElement(short ? 'input' : 'textarea');
+    if (short) { input.type = 'text'; } else { input.rows = 2; }
+    input.value = value;
+    input.addEventListener('input', function () { oninput(input.value); });
+    return input;
+  }
+  /* PDF 模板里「时间   单位   职位」是一个整块 span：拆成三个命名单元格，写回时按原分隔拼回 */
+  function makeTripleField(parts, el) {
+    var wrap = document.createElement('div');
+    wrap.className = 'qmt-field qmt-field-wide';
+    var row = document.createElement('div');
+    row.className = 'qmt-field-row';
+    var labels = ['时间', '单位 / 学校', '职位 / 专业'];
+    var inputs = parts.slice(0, 3).map(function (pt, i) {
+      var cell = document.createElement('div');
+      cell.className = 'qmt-field';
+      var lab = document.createElement('label');
+      lab.textContent = labels[i] || ('其他 ' + (i - 2));
+      cell.appendChild(lab);
+      row.appendChild(cell);
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.value = pt.trim();
+      input.addEventListener('input', sync);
+      cell.appendChild(input);
+      return input;
+    });
+    function sync() {
+      el.textContent = inputs.map(function (x) { return x.value; }).join('          ');
+      formSchedule();
+    }
+    wrap.appendChild(row);
+    return wrap;
+  }
   function makeFormField(section, p, idx) {
     var wrap = document.createElement('div');
     wrap.className = 'qmt-field';
@@ -639,10 +699,8 @@
       var lname = (lblEl.textContent || '').trim();
       var lval = txt.replace(lname, '').replace(/^[：:]\s*/, '');
       lab.textContent = lname;
-      input = document.createElement('textarea');
-      input.rows = 2; input.value = lval;
-      input.addEventListener('input', function () {
-        p.innerHTML = '<span class="lbl">' + escHtml(lname) + '</span>：' + escHtml(input.value);
+      input = mkValInput(lval, function (v) {
+        p.innerHTML = '<span class="lbl">' + escHtml(lname) + '</span>：' + escHtml(v);
         formSchedule();
       });
     } else if (isBasic && m) {
@@ -659,19 +717,232 @@
       input = document.createElement('input');
       input.type = 'text'; input.value = txt;
       input.addEventListener('input', function () { p.textContent = input.value; formSchedule(); });
+    } else if (isPdfPage() && !isBasic && /[\dXx＊*]/.test(txt.slice(0, 14)) && txt.split(/\s{3,}/).length >= 3 && txt.split(/\s{3,}/)[0].length <= 24) {
+      /* 整块的「时间   单位   职位」行拆成三个字段；超过三段的部分并入第三段，避免写回时丢字 */
+      var parts = txt.split(/\s{3,}/);
+      if (parts.length > 3) parts = parts.slice(0, 2).concat([parts.slice(2).join('          ')]);
+      return makeTripleField(parts, p);
     } else {
-      lab.textContent = section.label + ' · 第 ' + (idx + 1) + ' 条';
-      input = document.createElement('textarea');
-      input.rows = 2;
-      input.value = txt;
-      input.addEventListener('input', function () {
-        p.textContent = input.value;
+      /* 大字号行通常是简历标题/姓名，给个看得懂的字段名 */
+      var fs = 0;
+      try { fs = parseFloat(getComputedStyle(p).fontSize) || 0; } catch (e) {}
+      lab.textContent = (idx === 0 && fs >= 20) ? '简历标题 / 姓名' : (section.label + ' · 第 ' + (idx + 1) + ' 条');
+      input = mkValInput(txt, function (v) {
+        p.textContent = v;
         formSchedule();
       });
     }
     wrap.appendChild(lab);
     wrap.appendChild(input);
     return wrap;
+  }
+  /* ================= 条目级 添加 / 删除 ================= */
+  /* 经典模板（普通文档流）：克隆/移除 .entry 节点，下方内容自然重排。
+     PDF 定位模板：克隆条目的文字块并把下方所有文字块下移腾位；删除则反向收拢。
+     位移会进撤销栈（Ctrl+Z 可回退），超页时超页徽标会提示。 */
+  function isEntryHeadText(txt) {
+    if (!/[\dXx＊*]/.test(txt.slice(0, 14))) return false;
+    var parts = txt.split(/\s{3,}/);
+    return parts.length >= 3 && parts[0].length <= 24;
+  }
+  function pdfEntryGroups(section) {
+    var groups = [], cur = null;
+    section.ps.forEach(function (el) {
+      if (isEntryHeadText((el.textContent || '').trim())) {
+        cur = { head: el, rows: [] };
+        groups.push(cur);
+      } else if (cur) {
+        cur.rows.push(el);
+      }
+    });
+    return groups.length ? groups : null;
+  }
+  function spanTop(el) { return parseFloat(el.style.top) || 0; }
+  function spanBottom(el) { return spanTop(el) + (parseFloat(el.style.height) || 14); }
+  function shiftSpansBelow(y, delta) {
+    Array.prototype.forEach.call(page.querySelectorAll('.qmt-t'), function (el) {
+      var t = spanTop(el);
+      if (t >= y - 0.5) el.style.top = (t + delta) + 'pt';
+    });
+  }
+  function entrySpanRange(g) {
+    var all = [g.head].concat(g.rows);
+    var top = Infinity, bottom = -Infinity;
+    all.forEach(function (el) {
+      top = Math.min(top, spanTop(el));
+      bottom = Math.max(bottom, spanBottom(el));
+    });
+    return { all: all, top: top, bottom: bottom };
+  }
+  function afterEntryChange(msg) {
+    var idx = 0;
+    try {
+      var tabs = formEl ? formEl.querySelectorAll('.qmt-form-tab') : [];
+      for (var i = 0; i < tabs.length; i++) if (tabs[i].classList.contains('on')) idx = i;
+    } catch (e) {}
+    save(); snap(); checkOverflow();
+    if (formEl) { formEl.remove(); formEl = null; }
+    toggleForm(true);
+    var tabs2 = formEl.querySelectorAll('.qmt-form-tab');
+    if (tabs2[idx]) tabs2[idx].click();
+    toast(msg);
+  }
+  function pdfAddEntry(section) {
+    var groups = pdfEntryGroups(section);
+    if (!groups) return false;
+    var r = entrySpanRange(groups[groups.length - 1]);
+    var gap = 6;
+    if (groups.length >= 2) {
+      var prevTop = spanTop(groups[groups.length - 2].head);
+      gap = Math.max(2, Math.min(28, r.top - prevTop - (r.bottom - r.top)));
+    }
+    var delta = (r.bottom - r.top) + gap;
+    var clones = r.all.map(function (el) {
+      var c = el.cloneNode(true);
+      c.style.top = (spanTop(el) + delta) + 'pt';
+      return c;
+    });
+    shiftSpansBelow(r.bottom, delta);
+    var anchor = r.all[r.all.length - 1];
+    clones.forEach(function (c) {
+      anchor.parentNode.insertBefore(c, anchor.nextSibling);
+      anchor = c;
+    });
+    afterEntryChange('已添加一条（复制了上一条，直接改文字）');
+    return true;
+  }
+  function pdfDeleteEntry(section, g) {
+    var r = entrySpanRange(g);
+    var delta = (r.bottom - r.top) + 6;
+    r.all.forEach(function (el) { if (el.parentNode) el.parentNode.removeChild(el); });
+    shiftSpansBelow(r.bottom, -delta);
+    afterEntryChange('已删除该条（Ctrl+Z 可撤销）');
+    return true;
+  }
+  function entryCardShell(title, onDelete) {
+    var card = document.createElement('div');
+    card.className = 'qmt-entry-card';
+    var head = document.createElement('div');
+    head.className = 'qmt-entry-head';
+    var t = document.createElement('span');
+    t.textContent = title;
+    var del = document.createElement('button');
+    del.type = 'button'; del.className = 'qmt-entry-del';
+    del.textContent = '删除此条';
+    del.addEventListener('click', onDelete);
+    head.appendChild(t); head.appendChild(del);
+    var fields = document.createElement('div');
+    fields.className = 'qmt-entry-fields';
+    card.appendChild(head); card.appendChild(fields);
+    return card;
+  }
+  function appendAddButton(body, onAdd) {
+    var add = document.createElement('button');
+    add.type = 'button'; add.className = 'qmt-entry-add';
+    add.textContent = '＋ 添加一条';
+    add.addEventListener('click', onAdd);
+    body.appendChild(add);
+  }
+  /* 条目视图：返回 true 表示该模块已按条目卡渲染（调用方不再渲染平铺字段） */
+  function buildEntryCards(section, body) {
+    if (isPdfPage()) {
+      var groups = pdfEntryGroups(section);
+      if (!groups) return false;
+      groups.forEach(function (g, gi) {
+        body.appendChild(entryCardShell('第 ' + (gi + 1) + ' 条', function () {
+          if (groups.length <= 1 && !confirm('这是本模块最后一条，删除后模块就空了。继续？')) return;
+          pdfDeleteEntry(section, g);
+        }));
+        var fields = body.lastChild.querySelector('.qmt-entry-fields');
+        var headTxt = (g.head.textContent || '').trim();
+        var parts = headTxt.split(/\s{3,}/);
+        if (parts.length > 3) parts = parts.slice(0, 2).concat([parts.slice(2).join('          ')]);
+        fields.appendChild(makeTripleField(parts, g.head));
+        var rowN = 0;
+        g.rows.forEach(function (el) {
+          var rowTxt = (el.textContent || '').trim();
+          if (/^[•·▪◦*\-—–]$/.test(rowTxt)) return; /* 项目符号是装饰，不占用字段 */
+          rowN++;
+          var w = document.createElement('div');
+          w.className = 'qmt-field';
+          var lab = document.createElement('label');
+          lab.textContent = '内容 ' + rowN;
+          w.appendChild(lab);
+          w.appendChild(mkValInput(rowTxt, function (v) { el.textContent = v; formSchedule(); }));
+          fields.appendChild(w);
+        });
+      });
+      appendAddButton(body, function () { pdfAddEntry(section); });
+      return true;
+    }
+    if (section.sec) {
+      var entries = section.sec.querySelectorAll('.entry');
+      if (!entries.length) return false;
+      Array.prototype.forEach.call(entries, function (en, gi) {
+        body.appendChild(entryCardShell('第 ' + (gi + 1) + ' 条', function () {
+          en.parentNode.removeChild(en);
+          afterEntryChange('已删除该条（Ctrl+Z 可撤销）');
+        }));
+        var fields = body.lastChild.querySelector('.qmt-entry-fields');
+        Array.prototype.forEach.call(en.querySelectorAll('.entry-head > span, .li, p'), function (el) {
+          fields.appendChild(makeFormField(section, el, 0));
+        });
+      });
+      appendAddButton(body, function () {
+        var list = section.sec.querySelectorAll('.entry');
+        if (!list.length) return;
+        var last = list[list.length - 1];
+        last.parentNode.insertBefore(last.cloneNode(true), last.nextSibling);
+        afterEntryChange('已添加一条（复制了上一条，直接改文字）');
+      });
+      return true;
+    }
+    return false;
+  }
+
+  /* PDF 模板的基本信息是「标签 span ＋ 值 span」两块独立文字：按视觉行配成一个「标签 → 值」字段 */
+  function makePairField(label, valEl) {
+    var wrap = document.createElement('div');
+    wrap.className = 'qmt-field';
+    var lab = document.createElement('label');
+    lab.textContent = label;
+    wrap.appendChild(lab);
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.value = (valEl.textContent || '').trim();
+    input.addEventListener('input', function () { valEl.textContent = input.value; formSchedule(); });
+    wrap.appendChild(input);
+    return wrap;
+  }
+  function pairBasicFields(section) {
+    var ps = Array.prototype.slice.call(section.ps);
+    var out = [], used = {};
+    for (var i = 0; i < ps.length; i++) {
+      if (used[i]) continue;
+      var a = ps[i];
+      var at = (a.textContent || '').trim();
+      var fs = 0;
+      try { fs = parseFloat(getComputedStyle(a).fontSize) || 0; } catch (e) {}
+      var isLabel = at && at.length <= 10 && fs < 20 && !/[\d@a-zA-Z：:•·]/.test(at);
+      if (isLabel) {
+        var ar = a.getBoundingClientRect();
+        for (var j = i + 1; j < ps.length; j++) {
+          if (used[j]) continue;
+          var b = ps[j], br = b.getBoundingClientRect();
+          if (br.left <= ar.right - 2) continue;
+          if (Math.abs(br.top - ar.top) > Math.max(ar.height, br.height, 1) * 0.6) continue;
+          var bt = (b.textContent || '').trim();
+          if (!bt) continue;
+          used[i] = used[j] = 1;
+          out.push(makePairField(at.replace(/\s+/g, ''), b));
+          break;
+        }
+        if (used[i]) continue;
+      }
+      used[i] = 1;
+      out.push(makeFormField(section, a, i));
+    }
+    return out;
   }
   function renderFormBody(section) {
     var body = formEl.querySelector('.qmt-form-body');
@@ -690,9 +961,17 @@
       ps.textContent = 'JPG / PNG，自动压缩，只存在本机';
       ph.appendChild(pb); ph.appendChild(ps); body.appendChild(ph);
     }
-    Array.prototype.forEach.call(section.ps, function (p, i) {
-      body.appendChild(makeFormField(section, p, i));
-    });
+    /* PDF 模板的基本信息先把「标签＋值」两块配成命名字段；其余模块优先按条目卡渲染（可加删条目） */
+    var isBasic = /基本信息|个人资料|个人信息|联系方式/.test(section.label);
+    if (isPdfPage() && isBasic) {
+      pairBasicFields(section).forEach(function (f) { body.appendChild(f); });
+    } else if (!isBasic && buildEntryCards(section, body)) {
+      /* 已按条目卡渲染 */
+    } else {
+      Array.prototype.forEach.call(section.ps, function (p, i) {
+        body.appendChild(makeFormField(section, p, i));
+      });
+    }
   }
   function buildForm() {
     if (formEl) return formEl;
@@ -810,22 +1089,54 @@
       navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, fallback);
     } else fallback();
   }
+  /* 把当前简历按模块拼成纯文字：换模板时让用户能逐段搬到新模板 */
+  function resumePlainText() {
+    var parts = [];
+    try {
+      formSections().forEach(function (s) {
+        var lines = [];
+        s.ps.forEach(function (el) {
+          var t = (el.innerText || el.textContent || '').replace(/\s+\n/g, '\n').trim();
+          if (t) lines.push(t);
+        });
+        if (lines.length) parts.push('【' + s.label + '】\n' + lines.join('\n'));
+      });
+    } catch (e) {}
+    return parts.join('\n\n');
+  }
+  function copyText(str, okMsg) {
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = str; ta.style.cssText = 'position:fixed;left:0;top:0;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      toast(ok ? okMsg : '复制失败：请点正文手动选择复制');
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(str).then(function () { toast(okMsg); }, fallback);
+    } else fallback();
+  }
   function buildSwitchPanel(p) {
     p.innerHTML = '<div class="qmt-panel-title">换一套模板</div>' +
-      '<div class="qmt-empty" style="margin-bottom:8px">每套模板是独立排版，内容不能自动搬过去。先备份当前简历，再去模板库挑一套，在新模板里用「导入JSON」恢复文字。</div>';
+      '<div class="qmt-empty" style="margin-bottom:8px">每套模板都是独立排版，文字没法自动灌进新版式。正确换法：复制这份简历的纯文字 → 打开新模板 → 逐段粘贴（底部表单或点正文都行）。</div>';
+    var b0 = document.createElement('button');
+    b0.type = 'button'; b0.className = 'qmt-mini wide'; b0.style.marginBottom = '6px';
+    b0.textContent = '复制全部文字（已按模块整理）';
+    b0.onclick = function () { copyText(resumePlainText(), '已按模块复制全部文字'); };
     var b1 = document.createElement('button');
     b1.type = 'button'; b1.className = 'qmt-mini wide'; b1.style.marginBottom = '6px';
-    b1.textContent = '备份并去模板库 →';
+    b1.textContent = '复制文字并去模板库 →';
     b1.onclick = function () {
-      closePanel();
-      backupJSON();
-      setTimeout(function () { location.href = '../index.html#library'; }, 600);
+      copyText(resumePlainText(), '已复制，去挑新模板吧');
+      setTimeout(function () { location.href = '../index.html#library'; }, 700);
     };
     var b2 = document.createElement('button');
     b2.type = 'button'; b2.className = 'qmt-mini wide';
-    b2.textContent = '只去模板库（不备份）';
-    b2.onclick = function () { closePanel(); location.href = '../index.html#library'; };
-    p.appendChild(b1); p.appendChild(b2);
+    b2.textContent = '备份 JSON 留档（用于恢复到本模板）';
+    b2.onclick = function () { closePanel(); backupJSON(); };
+    p.appendChild(b0); p.appendChild(b1); p.appendChild(b2);
   }
   function buildSharePanel(p) {
     p.innerHTML = '<div class="qmt-panel-title">分享 / 复制 <span style="font-weight:400;color:#7a8a93;font-size:11.5px">不上传云端</span></div>' +
@@ -845,7 +1156,7 @@
   function buildLookPanel(p) {
     var th = currentTheme();
     var acc = detectAccent();
-    p.innerHTML = '<div class="qmt-panel-title">配色 <span style="font-weight:400;color:#7a8a93;font-size:11.5px">蓝色系 8 色</span></div>';
+    p.innerHTML = '<div class="qmt-panel-title">配色 <span style="font-weight:400;color:#7a8a93;font-size:11.5px">16 色 · 冷暖都有，点选即换</span></div>';
     if (!acc) {
       p.innerHTML += '<div class="qmt-empty">这个模板是纯黑白灰版式，没有可替换的彩色元素。</div>';
     } else {
@@ -987,20 +1298,26 @@
     tb.appendChild(Object.assign(document.createElement('span'), { className: 'qmt-sep' }));
     tb.appendChild(hint);
     tb.appendChild(badge);
-    [
-      ['替换照片', pickPhoto],
-      ['打印 / 导出PDF', openPrintGuide],
-      ['下载HTML', exportHTML],
-      ['下载Word', function () { togglePanel(this, buildWordPanel); }],
-      ['换模板', function () { togglePanel(this, buildSwitchPanel); }],
-      ['分享', function () { togglePanel(shareBtn, buildSharePanel); }],
-      ['备份JSON', backupJSON],
-      ['导入JSON', importJSON],
-      ['恢复原始内容', resetAll]
-    ].forEach(function (def) {
-      var b = mkBtn(def[0], def[1]);
-      tb.appendChild(b);
-      if (def[0] === '分享') shareBtn = b;
+    /* 按钮分组：照片 / 导出 / 数据 / 危险操作。危险按钮远离高频区并标红 */
+    var BTN_GROUPS = [
+      [['替换照片', pickPhoto]],
+      [['打印 / 导出PDF', openPrintGuide],
+       ['下载HTML', exportHTML],
+       ['下载Word', function () { togglePanel(this, buildWordPanel); }]],
+      [['换模板', function () { togglePanel(this, buildSwitchPanel); }],
+       ['分享', function () { togglePanel(shareBtn, buildSharePanel); }],
+       ['备份JSON', backupJSON],
+       ['导入JSON', importJSON]],
+      [['恢复原始内容', resetAll, 'danger']]
+    ];
+    BTN_GROUPS.forEach(function (g, gi) {
+      if (gi > 0) tb.appendChild(Object.assign(document.createElement('span'), { className: 'qmt-sep' }));
+      g.forEach(function (def) {
+        var b = mkBtn(def[0], def[1]);
+        if (def[2] === 'danger') { b.className = 'qmt-danger'; b.title = '清空你的修改、照片、配色和字体，恢复为模板示例内容'; }
+        tb.appendChild(b);
+        if (def[0] === '分享') shareBtn = b;
+      });
     });
     document.body.appendChild(tb);
     function syncToolbarSpace() {
@@ -1357,6 +1674,7 @@
         try {
           var d = JSON.parse(rd.result);
           if (!d || d.app !== 'qmt-resume' || typeof d.html !== 'string') throw new Error('bad');
+          if (d.id && d.id !== TPL.id && !confirm('这份备份来自「' + (d.name || d.id) + '」，不是当前模板。\n导入后当前页面会变成那套模板的排版（文字还在）。\n如果只是想搬文字，建议改用「换模板 → 复制全部文字」。\n\n仍要导入吗？')) return;
           if (!confirm('导入「' + (d.name || '') + '」的备份？当前内容将被覆盖。')) return;
           try {
             localStorage.setItem(HTML_KEY, d.html);

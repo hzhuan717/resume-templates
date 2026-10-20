@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -130,6 +130,7 @@ img{max-width:100%}
 .check input{accent-color:var(--teal);width:14px;height:14px}
 .clear-filters{width:100%;border:1px solid var(--line);background:#fff;border-radius:7px;padding:8px;font-size:12.5px;color:var(--muted)}
 .clear-filters:hover{border-color:var(--teal);color:var(--teal-dark)}
+.job-select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px;color:#3e535c}
 .result-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;min-height:28px}
 .result-count{font-size:13px;color:var(--muted)}
 .selected-chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -376,7 +377,7 @@ body.modal-open{overflow:hidden}
   <section class="section library" id="library">
     <div class="wrap">
       <div class="library-head">
-        <div><h2>全部模板</h2><p id="librarySub">按风格、照片位和页数筛选，找到适合你的那一套。</p></div>
+        <div><h2>全部模板</h2><p id="librarySub">按风格、岗位方向、照片位和页数筛选，找到适合你的那一套。</p></div>
         <div class="library-tools">
           <button class="filter-toggle" id="filterToggle" aria-expanded="false" aria-controls="filters">筛选 <span id="filterCount"></span></button>
           <label class="sr-only" for="q">搜索模板</label>
@@ -394,6 +395,10 @@ body.modal-open{overflow:hidden}
           <div class="filter-group">
             <h3>风格</h3>
             <div class="filter-list" id="catList"></div>
+          </div>
+          <div class="filter-group">
+            <h3>岗位方向</h3>
+            <select class="job-select" id="job" aria-label="按岗位方向筛选"></select>
           </div>
           <div class="filter-group">
             <h3>更多</h3>
@@ -480,9 +485,9 @@ body.modal-open{overflow:hidden}
 
 <script src="assets/templates.js"></script>
 <script>
-var EXTRA = [{ id: 'classic-teal', name: '经典青绿丝带（原版）', cat: '简约', photo: true, pages: 1 }];
+var EXTRA = [{ id: 'classic-teal', name: '经典青绿丝带（原版）', cat: '简约', photo: true, pages: 1, job: '财务会计' }];
 var LIST = [];
-var state = { cat: '全部', q: '', photo: false, single: false, fav: false, sort: 'rec', limit: 24 };
+var state = { cat: '全部', job: '全部', q: '', photo: false, single: false, fav: false, sort: 'rec', limit: 24 };
 var favs = (function(){ try { return new Set(JSON.parse(localStorage.getItem('qmt:favs') || '[]')); } catch(e){ return new Set(); } })();
 function saveFavs(){ try { localStorage.setItem('qmt:favs', JSON.stringify(Array.from(favs))); } catch(e){} }
 var FEATURED = ['classic-teal', 't001', 't045', 't084'];
@@ -498,6 +503,7 @@ var selectedEl = document.getElementById('selectedChips');
 var photoEl = document.getElementById('photoOnly');
 var singleEl = document.getElementById('singleOnly');
 var favEl = document.getElementById('favOnly');
+var jobEl = document.getElementById('job');
 var sortEl = document.getElementById('sort');
 var filterToggle = document.getElementById('filterToggle');
 var filtersEl = document.getElementById('filters');
@@ -523,7 +529,7 @@ function cardHTML(t){
     '</a>' +
     '<div class="card-body">' +
       '<a class="card-title" href="' + href + '">' + name + '</a>' +
-      '<div class="card-meta"><span>' + cat + '</span><span class="dot"></span><span>' + pages + '</span>' +
+      '<div class="card-meta"><span>' + cat + '</span><span class="dot"></span><span>' + esc(t.job || '通用') + '</span><span class="dot"></span><span>' + pages + '</span>' +
         (t.photo ? '<span class="dot"></span><span class="photo">可换照片</span>' : '') + '</div>' +
       '<div class="card-actions"><button type="button" class="fav' + (favs.has(t.id) ? ' on' : '') + '" data-fav="' + id + '" aria-pressed="' + (favs.has(t.id) ? 'true' : 'false') + '">' + (favs.has(t.id) ? '已收藏' : '收藏') + '</button>' +
         '<button type="button" data-preview="' + id + '">预览</button>' +
@@ -536,10 +542,11 @@ function filtered(){
   var kw = state.q.trim().toLowerCase();
   var list = LIST.filter(function(t){
     if (state.cat !== '全部' && t.cat !== state.cat) return false;
+    if (state.job !== '全部' && (t.job || '通用') !== state.job) return false;
     if (state.photo && !t.photo) return false;
     if (state.single && t.pages && t.pages > 1) return false;
     if (state.fav && !favs.has(t.id)) return false;
-    if (kw && (t.name + ' ' + t.cat + ' ' + t.id).toLowerCase().indexOf(kw) < 0) return false;
+    if (kw && (t.name + ' ' + t.cat + ' ' + (t.job || '') + ' ' + t.id).toLowerCase().indexOf(kw) < 0) return false;
     return true;
   });
   if (state.sort === 'name') list.sort(function(a,b){ return a.name.localeCompare(b.name, 'zh-Hans-CN'); });
@@ -562,9 +569,19 @@ function renderCats(){
   }).join('');
 }
 
+function renderJobs(){
+  var jobs = ['全部'];
+  LIST.forEach(function(t){ var j = t.job || '通用'; if (jobs.indexOf(j) < 0) jobs.push(j); });
+  jobEl.innerHTML = jobs.map(function(j){
+    var n = j === '全部' ? LIST.length : LIST.filter(function(t){ return (t.job || '通用') === j; }).length;
+    return '<option value="' + esc(j) + '"' + (state.job === j ? ' selected' : '') + '>' + esc(j) + '（' + n + '）</option>';
+  }).join('');
+}
+
 function renderChips(){
   var chips = [];
   if (state.cat !== '全部') chips.push({ k: 'cat', label: state.cat });
+  if (state.job !== '全部') chips.push({ k: 'job', label: state.job });
   if (state.q) chips.push({ k: 'q', label: '“' + state.q + '”' });
   if (state.photo) chips.push({ k: 'photo', label: '可换照片' });
   if (state.single) chips.push({ k: 'single', label: '仅单页' });
@@ -584,7 +601,7 @@ function render(){
   emptyEl.style.display = list.length ? 'none' : 'block';
   loadMoreEl.hidden = shown.length >= list.length;
   loadMoreEl.textContent = '加载更多（还有 ' + (list.length - shown.length) + ' 套）';
-  renderCats(); renderChips();
+  renderCats(); renderJobs(); renderChips();
   Array.prototype.forEach.call(grid.querySelectorAll('.thumb img'), function(img){
     img.addEventListener('error', function(){ img.style.display='none'; img.parentNode.classList.add('noimg'); });
   });
@@ -615,6 +632,7 @@ function setState(patch, scroll){
 function syncURL(){
   var p = new URLSearchParams();
   if (state.cat !== '全部') p.set('cat', state.cat);
+  if (state.job !== '全部') p.set('job', state.job);
   if (state.q) p.set('q', state.q);
   if (state.photo) p.set('photo', '1');
   if (state.single) p.set('single', '1');
@@ -626,6 +644,7 @@ function syncURL(){
 function readURL(){
   var p = new URLSearchParams(location.search);
   if (p.get('cat')) state.cat = p.get('cat');
+  if (p.get('job')) state.job = p.get('job');
   if (p.get('q')) state.q = p.get('q');
   state.photo = p.get('photo') === '1';
   state.single = p.get('single') === '1';
@@ -664,6 +683,7 @@ document.addEventListener('click', function(e){
   if (rm){
     var k = rm.getAttribute('data-remove');
     if (k === 'cat') setState({ cat: '全部' });
+    else if (k === 'job'){ setState({ job: '全部' }); }
     else if (k === 'q'){ qEl.value = ''; setState({ q: '' }); }
     else if (k === 'photo'){ photoEl.checked = false; setState({ photo: false }); }
     else if (k === 'single'){ singleEl.checked = false; setState({ single: false }); }
@@ -673,8 +693,8 @@ document.addEventListener('click', function(e){
   var hot = e.target.closest ? e.target.closest('button[data-hot]') : null;
   if (hot){
     var v = hot.getAttribute('data-hot');
-    if (v === 'photo'){ photoEl.checked = true; setState({ photo: true, cat: '全部', q: '' }, true); }
-    else setState({ cat: v, q: '', photo: false, single: false }, true);
+    if (v === 'photo'){ photoEl.checked = true; setState({ photo: true, cat: '全部', job: '全部', q: '' }, true); }
+    else setState({ cat: v, job: '全部', q: '', photo: false, single: false }, true);
     return;
   }
   var foot = e.target.closest ? e.target.closest('[data-foot-cat]') : null;
@@ -696,10 +716,11 @@ qEl.addEventListener('input', function(){ state.q = this.value; state.limit = 24
 photoEl.addEventListener('change', function(){ setState({ photo: this.checked }); });
 singleEl.addEventListener('change', function(){ setState({ single: this.checked }); });
 favEl.addEventListener('change', function(){ setState({ fav: this.checked }); });
+jobEl.addEventListener('change', function(){ setState({ job: this.value }); });
 sortEl.addEventListener('change', function(){ setState({ sort: this.value }); });
 document.getElementById('clearFilters').addEventListener('click', function(){
   photoEl.checked = false; singleEl.checked = false; favEl.checked = false; qEl.value = '';
-  state = { cat: '全部', q: '', photo: false, single: false, fav: false, sort: 'rec', limit: 24 };
+  state = { cat: '全部', job: '全部', q: '', photo: false, single: false, fav: false, sort: 'rec', limit: 24 };
   sortEl.value = 'rec'; render();
 });
 document.getElementById('emptyClear').addEventListener('click', function(){
